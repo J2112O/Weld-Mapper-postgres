@@ -24,7 +24,7 @@ deg2 = "degree_2"
 bnd_dir2 = "direction_2"
 
 # Weld Table columns here
-weld_id = "id"
+weld_uid = "id"
 wld_type = "type"
 wld_x_id = "weld_id"
 upstream_jt = "upstream_joint"
