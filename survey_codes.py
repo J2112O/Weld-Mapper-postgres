@@ -38,31 +38,3 @@ class ComboBend:
     def __init__(self, direction_2, degree_2):
         self.direction_2 = direction_2
         self.degree_2 = degree_2
-
-
-def main():
-    # Collecting and converting the string value of the station number and assigning for tuple unpacking
-    gather_station = hf.station_convert()
-    # Collecting all of the common attributes and assigning for tuple unpacking
-    gather_ca = hf.collect_common_atts()
-    # Collecting all of the bend attributes and assigning for tuple unpacking
-    gather_bnd = hf.collect_bend()
-    gather_cmbo_bnd = hf.collect_combo_bend()
-    bnd_attributes = ComboBend(gather_station[0], gather_station[1], gather_bnd[0], gather_bnd[1], gather_bnd[2],
-                          gather_ca[0], gather_ca[1], gather_ca[2], gather_ca[3], gather_cmbo_bnd[0],
-                               gather_cmbo_bnd[1])
-
-    print(bnd_attributes.whole_station_number)
-    print(bnd_attributes.dec_station_num)
-    print(bnd_attributes.gps_shot)
-    print(bnd_attributes.grade_shot)
-    print(bnd_attributes.cover)
-    print(bnd_attributes.notes)
-    print(bnd_attributes.degree)
-    print(bnd_attributes.direction)
-    print(bnd_attributes.type)
-    print(bnd_attributes.direction_2)
-    print(bnd_attributes.degree_2)
-
-if __name__ == '__main__':
-    main()
