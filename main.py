@@ -18,10 +18,10 @@ except pg.DatabaseError as e:
 try:
     # Creating the Common Attributes table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS {} ({} SERIAL PRIMARY KEY, {} INTEGER NOT NULL, {}
-        REAL NOT NULL, {} INTEGER NOT NULL, {} INTEGER NOT NULL, {} REAL NOT
-        NULL, {} VARCHAR(25) DEFAULT 'N/A');"""
-            .format(colu.attributes_table, colu.ca_uid, colu.whole_station,
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s INTEGER NOT NULL, %s
+        REAL NOT NULL, %s INTEGER NOT NULL, %s INTEGER NOT NULL, %s REAL NOT
+        NULL, %s VARCHAR(25) DEFAULT 'N/A');"""
+             %(colu.attributes_table, colu.ca_uid, colu.whole_station,
                     colu.offset_station, colu.gps_point, colu.grade_point,
                     colu.depth_cover, colu.jottings))
     conn.commit()
@@ -29,35 +29,35 @@ try:
 
     # Creating the Bend Table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS {} ({} SERIAL PRIMARY KEY REFERENCES {}({}),
-        {} REAL NOT NULL, {} VARCHAR(25) NOT NULL, {} VARCHAR(25));"""
-        .format(colu.bend_table, colu.bnd_uid, colu.attributes_table,
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY REFERENCES %s(%s),
+        %s REAL NOT NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25));"""
+        % (colu.bend_table, colu.bnd_uid, colu.attributes_table,
                 colu.ca_uid, colu.deg, colu.bnd_dir, colu.bnd_type))
     conn.commit()
     print("{} table created.".format(colu.bend_table))
 
     # Creating the ComboBend Table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS {} ({} SERIAL PRIMARY KEY REFERENCES {}({}), {} REAL NOT
-        NULL, {} VARCHAR(25));"""
-        .format(colu.cmb_bend_table, colu.cmbo_uid, colu.attributes_table,
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY REFERENCES %s(%s), %s REAL NOT
+        NULL, %s VARCHAR(25));"""
+        % (colu.cmb_bend_table, colu.cmbo_uid, colu.attributes_table,
                 colu.ca_uid, colu.deg2, colu.bnd_dir2))
     conn.commit()
     print("{} table created.".format(colu.cmb_bend_table))
 
     # Creating the Weld Table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS {} ({} SERIAL PRIMARY KEY REFERENCES {}({}), {} VARCHAR(25)
-        NOT NULL, {} VARCHAR(25) NOT NULL, {} VARCHAR(25), {} VARCHAR(25), {} REAL
-        NOT NULL, {} VARCHAR(25), {} VARCHAR(25) DEFAULT 'N/A', {} VARCHAR(25) NOT
-        NULL, {} VARCHAR(25) DEFAULT 'N/A');"""
-        .format(colu.weld_table, colu.weld_uid, colu.attributes_table, colu.ca_uid,
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY REFERENCES %s(%s), %s VARCHAR(25)
+        NOT NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s VARCHAR(25), %s REAL
+        NOT NULL, %s VARCHAR(25), %s VARCHAR(25) DEFAULT 'N/A', %s VARCHAR(25) NOT
+        NULL, %s VARCHAR(25) DEFAULT 'N/A');"""
+        % (colu.weld_table, colu.weld_uid, colu.attributes_table, colu.ca_uid,
                 colu.wld_type, colu.wld_x_id, colu.upstream_jt, colu.downstream_jt,
                 colu.ah_length, colu.ht, colu.wll_chng, colu.ditch_loc, colu.welder_initials))
     conn.commit()
     print("{} table created.".format(colu.weld_table))
-except pg.DatabaseError as e:
-    print(e)
+except pg.DatabaseError:
+    print("After Table Creating try {}".format(pg.DatabaseError))
 #finally:
     #if cur:
         #cur.close()
@@ -80,18 +80,18 @@ while go_or_stop == "YES":
         # Inserting into the Common Attributes table
         try:
             cur.execute(
-                """INSERT INTO {} ({}, {}, {}, {}, {}, {}) VALUES ({}, {}, {}, {}, {}, {});"""
-                .format(colu.attributes_table, colu.whole_station,
+                """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES (%s, %s, %s, %s, %s, %s);"""
+                % (colu.attributes_table, colu.whole_station,
                         colu.offset_station, colu.gps_point, colu.grade_point,
                         colu.depth_cover, colu.jottings, ca_atts.whole_station_number,
                         ca_atts.dec_station_num, ca_atts.gps_shot,
                         ca_atts.grade_shot, ca_atts.cover, ca_atts.notes))
             conn.commit()
-        except pg.DatabaseError as e:
-            print(e)
+        except pg.DatabaseError:
+            print("After Bend try {}".format(pg.DatabaseError))
         try:
             bendy = hf.collect_bend()
-            bnd_atts = sc.Bend(bendy[0], bendy[1], bendy[2])
+            bnd_atts = sc.Bend(*bendy)
             cur.execute(
                 "INSERT INTO {} ({}, {}, {}) VALUES ({},{},{});"
             .format(colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
