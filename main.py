@@ -18,12 +18,9 @@ except pg.DatabaseError as e:
 try:
     # Creating the Common Attributes table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s INTEGER NOT NULL, %s
-        REAL NOT NULL, %s INTEGER NOT NULL, %s INTEGER NOT NULL, %s REAL NOT
-        NULL, %s VARCHAR(25) DEFAULT 'N/A');"""
-             %(colu.attributes_table, colu.ca_uid, colu.whole_station,
-                    colu.offset_station, colu.gps_point, colu.grade_point,
-                    colu.depth_cover, colu.jottings))
+        """CREATE TABLE IF NOT EXISTS attributes (id SERIAL PRIMARY KEY, whole_station INTEGER NOT NULL, offset_station
+        REAL NOT NULL, gps_shot INTEGER NOT NULL, grade_shot INTEGER NOT NULL, cover REAL NOT
+        NULL, notes VARCHAR(25) DEFAULT 'N/A');""")
     conn.commit()
     print("{} table created.".format(colu.attributes_table))
 
@@ -56,8 +53,8 @@ try:
                 colu.ah_length, colu.ht, colu.wll_chng, colu.ditch_loc, colu.welder_initials))
     conn.commit()
     print("{} table created.".format(colu.weld_table))
-except pg.DatabaseError:
-    print("After Table Creating try {}".format(pg.DatabaseError))
+except pg.Error as e:
+    print(e.pgerror)
 #finally:
     #if cur:
         #cur.close()
@@ -80,15 +77,13 @@ while go_or_stop == "YES":
         # Inserting into the Common Attributes table
         try:
             cur.execute(
-                """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES (%s, %s, %s, %s, %s, %s);"""
-                % (colu.attributes_table, colu.whole_station,
-                        colu.offset_station, colu.gps_point, colu.grade_point,
-                        colu.depth_cover, colu.jottings, ca_atts.whole_station_number,
+                """INSERT INTO attributes (whole_station, offset_station, gps_shot, grade_shot, cover, notes) VALUES (%s, %s, %s, %s, %s, %s);"""
+                % ( ca_atts.whole_station_number,
                         ca_atts.dec_station_num, ca_atts.gps_shot,
                         ca_atts.grade_shot, ca_atts.cover, ca_atts.notes))
             conn.commit()
-        except pg.DatabaseError:
-            print("After Bend try {}".format(pg.DatabaseError))
+        except pg.Error as e:
+            print(e.pgerror)
         try:
             bendy = hf.collect_bend()
             bnd_atts = sc.Bend(*bendy)
@@ -97,8 +92,8 @@ while go_or_stop == "YES":
             .format(colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
                     bnd_atts.degree, bnd_atts.direction, bnd_atts.type))
             conn.commit()
-        except pg.DatabaseError as e:
-            print(e)
+        except pg.Error as e:
+            print(e.pgerror)
     elif choice == code_choices[1]:
         # Weld was chosen so calling the needed methods and assigning to variables for tuple unpacking on insert
         station = hf.station_convert()
@@ -127,8 +122,8 @@ while go_or_stop == "YES":
                     wld_atts.heat, wld_atts.wall_change, wld_atts.ditch,
                     wld_atts.welder_inits))
             conn.commit()
-        except pg.DatabaseError as e:
-            print(e)
+        except pg.Error as e:
+            print(e.pgerror)
     elif choice == code_choices[2]:
         # ComboBend was chosen so calling the needed methods and assigning to variables for tuple unpacking on insert
         station = hf.station_convert()
@@ -157,8 +152,8 @@ while go_or_stop == "YES":
             .format(colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, cmbo.degree_2,
                     cmbo.direction_2))
             conn.commit()
-        except pg.DatabaseError as e:
-            print(e)
+        except pg.Error as e:
+            print(e.pgerror)
 
 
 if cur:
