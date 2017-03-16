@@ -20,7 +20,7 @@ try:
     cur.execute(
         """CREATE TABLE IF NOT EXISTS {} ({} SERIAL PRIMARY KEY, {} INTEGER NOT NULL, {}
         REAL NOT NULL, {} INTEGER NOT NULL, {} INTEGER NOT NULL, {} REAL NOT
-        NULL, {} VARCHAR(25));"""
+        NULL, {} VARCHAR(25) DEFAULT 'N/A');"""
             .format(colu.attributes_table, colu.ca_uid, colu.whole_station,
                     colu.offset_station, colu.gps_point, colu.grade_point,
                     colu.depth_cover, colu.jottings))
@@ -73,15 +73,14 @@ while go_or_stop == "YES":
 
     if choice == code_choices[0]:
         # Bend was chosen so calling the needed methods and assigning to variables for tuple unpacking on insert
-        station = hf.station_convert()
+        #station = hf.station_convert()
         common = hf.collect_common_atts()
         # Assigning the above collect values to the Common Attributes class
-        ca_atts = sc.CommonAttributes(station[0], station[1], common[0], common[1],
-                                    common[2], common[3])
+        ca_atts = sc.CommonAttributes(*common)
         # Inserting into the Common Attributes table
         try:
             cur.execute(
-                "INSERT INTO {} ({}, {}, {}, {}, {}, {}) VALUES({},{},{},{},{},{});"
+                """INSERT INTO {} ({}, {}, {}, {}, {}, {}) VALUES ({}, {}, {}, {}, {}, {});"""
                 .format(colu.attributes_table, colu.whole_station,
                         colu.offset_station, colu.gps_point, colu.grade_point,
                         colu.depth_cover, colu.jottings, ca_atts.whole_station_number,

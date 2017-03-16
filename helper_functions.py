@@ -1,4 +1,5 @@
 # this module contains helper functions
+import survey_codes as sc
 
 bend_directions = ('SAG', 'OVERBEND', 'PI-LT', 'PI-RT') # A tuple of bend directions
 bend_types = ('FIELD', 'FORGED', 'FACTORY','HOT') # A tuple of bend types
@@ -23,6 +24,10 @@ def collect_common_atts():
     This function collects all the survey data for the common attributes
     :return: all collected variables into a tuple
     """
+    m_station_num = str(input("Station number: "))
+    number_element = m_station_num.split('+')
+    m_whole_stat_num = int(number_element[0])
+    m_dec_stat_num = float(number_element[1])
     while True:
         try:
             m_gps_shot = int(input("GPS Shot: "))
@@ -45,7 +50,7 @@ def collect_common_atts():
         else:
             break
     m_notes = str(input("Notes: ")).upper()
-    return m_gps_shot, m_grade_shot, m_cover, m_notes
+    return m_whole_stat_num, m_dec_stat_num, m_gps_shot, m_grade_shot, m_cover, m_notes
 
 
 def collect_weld():
@@ -119,3 +124,26 @@ def collect_combo_bend():
             break
 
     return m_direction_2, m_degree_2
+
+
+def main():
+    ba_atts = collect_common_atts()
+    print("in main")
+    print(ba_atts[0])
+    print(ba_atts[1])
+    print(ba_atts[2])
+    print(ba_atts[3])
+    print(ba_atts[4])
+    print(ba_atts[5])
+    current_ats = sc.CommonAttributes(*ba_atts)
+    print("after class assignment")
+    print(current_ats.whole_station_number)
+    print(current_ats.dec_station_num)
+    print(current_ats.gps_shot)
+    print(current_ats.grade_shot)
+    print(current_ats.cover)
+    print(current_ats.notes)
+
+
+if __name__ == '__main__':
+    main()
