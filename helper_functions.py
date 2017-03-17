@@ -1,4 +1,5 @@
 # this module contains helper functions
+import psycopg2 as pg
 import survey_codes as sc
 
 bend_directions = ('SAG', 'OVERBEND', 'PI-LT', 'PI-RT') # A tuple of bend directions
@@ -54,10 +55,10 @@ def collect_common_atts():
 
 
 def collect_weld():
-    '''
+    """
     This function collects all the survey data for a weld.
     :return: All collected variables into a tuple
-    '''
+    """
     for weld in weld_types:
         print(weld)
     print()
@@ -76,14 +77,14 @@ def collect_weld():
     m_wall_change = str(input("Wall Change (Yes or No): ")).upper()
     m_ditch = str(input("Pipe In Ditche (Yes or No): ")).upper()
     m_welder_in = str(input("Welder Initials: ")).upper()
-    return  m_weld_type, m_weld_id, m_upstream_asset, m_down_asset, m_length_ah,\
+    return m_weld_type, m_weld_id, m_upstream_asset, m_down_asset, m_length_ah,\
             m_heat, m_wall_change, m_ditch, m_welder_in
 
 
 def collect_bend():
     """
     This function collects the basic bend attributes
-    :return: the degree, direction, type
+    :return: the degree, direction, type of bend
     """
     m_degree = 0.0
     for direction in bend_directions:
@@ -127,23 +128,72 @@ def collect_combo_bend():
 
 
 def main():
-    ba_atts = collect_common_atts()
-    print("in main")
-    print(ba_atts[0])
-    print(ba_atts[1])
-    print(ba_atts[2])
-    print(ba_atts[3])
-    print(ba_atts[4])
-    print(ba_atts[5])
-    current_ats = sc.CommonAttributes(*ba_atts)
-    print("after class assignment")
-    print(current_ats.whole_station_number)
-    print(current_ats.dec_station_num)
-    print(current_ats.gps_shot)
-    print(current_ats.grade_shot)
-    print(current_ats.cover)
-    print(current_ats.notes)
+    comm_atts = collect_common_atts()
+    cur = None
+    conn = None
 
+    print("prior to passsing in")
+    print(comm_atts[0])
+    print(comm_atts[1])
+    print(comm_atts[2])
+    print(comm_atts[3])
+    print(comm_atts[4])
+    print(comm_atts[5])
+    try:
+        conn = pg.connect("host=127.0.0.1 dbname=delta user=postgres password=Narmar123 port=5433")
+        cur = conn.cursor()
+        print("Connected to database. ")
+    except pg.DatabaseError as e:
+        print(e)
+
+    try:
+        print("prior to create table")
+        print(comm_atts[0])
+        print(comm_atts[1])
+        print(comm_atts[2])
+        print(comm_atts[3])
+        print(comm_atts[4])
+        print(comm_atts[5])
+        # Creating the Common Attributes table.
+        cur.execute(
+            """CREATE TABLE IF NOT EXISTS attributes (id SERIAL PRIMARY KEY, whole_station INTEGER NOT NULL, offset_station
+            REAL NOT NULL, gps_shot INTEGER NOT NULL, grade_shot INTEGER NOT NULL, cover REAL NOT
+            NULL, notes VARCHAR(25));""")
+        conn.commit()
+        print("attributes table created.")
+    except pg.DatabaseError as e:
+        print(e)
+
+    try:
+
+        print("prior to inserting into table.")
+        print(comm_atts[0])
+        print(comm_atts[1])
+        print(comm_atts[2])
+        print(comm_atts[3])
+        print(comm_atts[4])
+        print(comm_atts[5])
+        cur.execute(
+            """INSERT INTO attributes (whole_station, offset_station, gps_shot, grade_shot, cover, notes)
+            VALUES (%s, %s, %s, %s, %s, %s);""" % (comm_atts[0], comm_atts[1], comm_atts[2], comm_atts[3], comm_atts[4], 'happy'))
+        print("prior to the commit() method being called.")
+        print(comm_atts[0])
+        print(comm_atts[1])
+        print(comm_atts[2])
+        print(comm_atts[3])
+        print(comm_atts[4])
+        print(comm_atts[5])
+        conn.commit()
+
+        print("after the commit() method is called.")
+        print(comm_atts[0])
+        print(comm_atts[1])
+        print(comm_atts[2])
+        print(comm_atts[3])
+        print(comm_atts[4])
+        print(comm_atts[5])
+    except pg.DatabaseError as e:
+        print(e)
 
 if __name__ == '__main__':
     main()

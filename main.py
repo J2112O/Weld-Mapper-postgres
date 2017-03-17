@@ -20,7 +20,7 @@ try:
     cur.execute(
         """CREATE TABLE IF NOT EXISTS attributes (id SERIAL PRIMARY KEY, whole_station INTEGER NOT NULL, offset_station
         REAL NOT NULL, gps_shot INTEGER NOT NULL, grade_shot INTEGER NOT NULL, cover REAL NOT
-        NULL, notes VARCHAR(25) DEFAULT 'N/A');""")
+        NULL, notes VARCHAR(25));""")
     conn.commit()
     print("{} table created.".format(colu.attributes_table))
 
