@@ -1,6 +1,7 @@
 # this module contains helper functions
 import psycopg2 as pg
 import survey_codes as sc
+import db_column_cons as col
 
 bend_directions = ('SAG', 'OVERBEND', 'PI-LT', 'PI-RT') # A tuple of bend directions
 bend_types = ('FIELD', 'FORGED', 'FACTORY','HOT') # A tuple of bend types
@@ -127,73 +128,3 @@ def collect_combo_bend():
     return m_direction_2, m_degree_2
 
 
-def main():
-    comm_atts = collect_common_atts()
-    cur = None
-    conn = None
-
-    print("prior to passsing in")
-    print(comm_atts[0])
-    print(comm_atts[1])
-    print(comm_atts[2])
-    print(comm_atts[3])
-    print(comm_atts[4])
-    print(comm_atts[5])
-    try:
-        conn = pg.connect("host=127.0.0.1 dbname=delta user=postgres password=Narmar123 port=5433")
-        cur = conn.cursor()
-        print("Connected to database. ")
-    except pg.DatabaseError as e:
-        print(e)
-
-    try:
-        print("prior to create table")
-        print(comm_atts[0])
-        print(comm_atts[1])
-        print(comm_atts[2])
-        print(comm_atts[3])
-        print(comm_atts[4])
-        print(comm_atts[5])
-        # Creating the Common Attributes table.
-        cur.execute(
-            """CREATE TABLE IF NOT EXISTS attributes (id SERIAL PRIMARY KEY, whole_station INTEGER NOT NULL, offset_station
-            REAL NOT NULL, gps_shot INTEGER NOT NULL, grade_shot INTEGER NOT NULL, cover REAL NOT
-            NULL, notes VARCHAR(25));""")
-        conn.commit()
-        print("attributes table created.")
-    except pg.DatabaseError as e:
-        print(e)
-
-    try:
-
-        print("prior to inserting into table.")
-        print(comm_atts[0])
-        print(comm_atts[1])
-        print(comm_atts[2])
-        print(comm_atts[3])
-        print(comm_atts[4])
-        print(comm_atts[5])
-        cur.execute(
-            """INSERT INTO attributes (whole_station, offset_station, gps_shot, grade_shot, cover, notes)
-            VALUES (%s, %s, %s, %s, %s, %s);""" % (comm_atts[0], comm_atts[1], comm_atts[2], comm_atts[3], comm_atts[4], 'happy'))
-        print("prior to the commit() method being called.")
-        print(comm_atts[0])
-        print(comm_atts[1])
-        print(comm_atts[2])
-        print(comm_atts[3])
-        print(comm_atts[4])
-        print(comm_atts[5])
-        conn.commit()
-
-        print("after the commit() method is called.")
-        print(comm_atts[0])
-        print(comm_atts[1])
-        print(comm_atts[2])
-        print(comm_atts[3])
-        print(comm_atts[4])
-        print(comm_atts[5])
-    except pg.DatabaseError as e:
-        print(e)
-
-if __name__ == '__main__':
-    main()
