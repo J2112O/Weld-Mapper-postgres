@@ -15,7 +15,7 @@ try:
 except pg.DatabaseError as e:
     print(e)
 
-query_result = db_helper.find_weld(4743, cur, conn)
+query_result = db_helper.attributes_query(4743, cur, conn)
 for k, v in query_result.items():
     print(k,v)
 
