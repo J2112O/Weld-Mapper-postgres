@@ -2,6 +2,7 @@ import psycopg2 as pg
 import survey_codes as sc
 import helper_functions as hf
 import db_column_cons as colu
+import db_query_helpers as db_helper
 
 code_choices = ("BEND", "WELD", "COMBO BEND")
 cur = None
@@ -14,7 +15,11 @@ try:
 except pg.DatabaseError as e:
     print(e)
 
+query_result = db_helper.find_weld(4743, cur, conn)
+for k, v in query_result.items():
+    print(k,v)
 
+'''
 try:
     # Creating the Common Attributes table.
     cur.execute(
@@ -164,6 +169,7 @@ while go_or_stop == "YES":
         except pg.Error as e:
             print(e.pgerror)
 
+'''
 
 if cur:
     cur.close()

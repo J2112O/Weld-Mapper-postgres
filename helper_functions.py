@@ -1,7 +1,4 @@
 # this module contains helper functions
-import psycopg2 as pg
-import survey_codes as sc
-import db_column_cons as col
 
 bend_directions = ('SAG', 'OVERBEND', 'PI-LT', 'PI-RT') # A tuple of bend directions
 bend_types = ('FIELD', 'FORGED', 'FACTORY','HOT') # A tuple of bend types
@@ -52,7 +49,7 @@ def collect_common_atts():
         else:
             break
     m_notes = str(input("Notes: ")).upper()
-    return m_whole_stat_num, m_dec_stat_num, m_gps_shot, m_grade_shot, m_cover, m_notes
+    return [m_whole_stat_num, m_dec_stat_num, m_gps_shot, m_grade_shot, m_cover, m_notes]
 
 
 def collect_weld():
@@ -76,7 +73,7 @@ def collect_weld():
             break
     m_heat = str(input("Heat: ")).upper()
     m_wall_change = str(input("Wall Change (Yes or No): ")).upper()
-    m_ditch = str(input("Pipe In Ditche (Yes or No): ")).upper()
+    m_ditch = str(input("Pipe In Ditch (Yes or No): ")).upper()
     m_welder_in = str(input("Welder Initials: ")).upper()
     return m_weld_type, m_weld_id, m_upstream_asset, m_down_asset, m_length_ah,\
             m_heat, m_wall_change, m_ditch, m_welder_in

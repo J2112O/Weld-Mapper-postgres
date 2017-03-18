@@ -1,7 +1,5 @@
 # This module has survey codes in it.
 
-import helper_functions as hf
-
 
 class CommonAttributes:
     def __init__(self, whole_station_number, dec_station_num, gps_shot, grade_shot, cover, notes):
