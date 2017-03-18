@@ -88,6 +88,13 @@ def collect_bend():
     :return: the degree, direction, type of bend
     """
     m_degree = 0.0
+    while True:
+        try:
+            m_degree = float(input("Degree: "))
+        except ValueError:
+            print("Decimal Numbers only")
+        else:
+            break
     for direction in bend_directions:
         print(direction)
     print()
@@ -97,14 +104,7 @@ def collect_bend():
         print(b_types)
     print()
     m_type = str(input("Bend Type: ")).upper()
-    while True:
-        try:
-            m_degree = float(input("Degree: "))
-        except ValueError:
-            print("Decimal Numbers only")
-        else:
-            break
-    return m_direction, m_type, m_degree
+    return m_degree, m_direction, m_type
 
 
 def collect_combo_bend():

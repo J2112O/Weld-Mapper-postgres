@@ -8,7 +8,7 @@ cur = None
 conn = None
 
 try:
-    conn = pg.connect("host=127.0.0.1 dbname=delta user=postgres password=Narmar123 port=5433")
+    conn = pg.connect("host=127.0.0.1 dbname=as_built user=postgres password=Narmar123 port=5433")
     cur = conn.cursor()
     print("Connected to database. ")
 except pg.DatabaseError as e:
