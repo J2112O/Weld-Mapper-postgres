@@ -17,11 +17,13 @@ bnd_uid = "id"
 deg = "degree"
 bnd_dir = "direction"
 bnd_type = "type"
+bnd_gps = "gps_shot"
 
 # ComboBend Table columns here
 cmbo_uid = "id"
 deg2 = "degree_2"
 bnd_dir2 = "direction_2"
+c_bnd_gps = "gps_shot"
 
 # Weld Table columns here
 weld_uid = "id"
@@ -34,3 +36,4 @@ ht = "heat"
 wll_chng = "wall_change"
 ditch_loc = "location"
 welder_initials = "welder_initials"
+wld_gps = "gps_shot"

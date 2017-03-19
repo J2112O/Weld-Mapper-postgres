@@ -24,7 +24,7 @@ try:
     # Creating the Common Attributes table.
     cur.execute(
         """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s INTEGER NOT NULL, %s
-        REAL NOT NULL, %s INTEGER NOT NULL UNIQUE, %s INTEGER NOT NULL, %s REAL NOT
+        REAL NOT NULL, %s INTEGER UNIQUE NOT NULL, %s INTEGER NOT NULL, %s REAL NOT
         NULL, %s VARCHAR(25));""" % (colu.attributes_table, colu.ca_uid,
                                      colu.whole_station, colu.offset_station,
                                      colu.gps_point, colu.grade_point,
@@ -35,19 +35,19 @@ try:
     # Creating the Bend Table.
     cur.execute(
         """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s REAL NOT
-        NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s INTEGER NOT NULL
-        REFERENCES %s(%s));""" % (colu.bend_table, colu.bnd_uid, colu.deg,
-                                  colu.bnd_dir, colu.bnd_type, colu.gps_point,
+        NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s INTEGER UNIQUE NOT NULL,
+        FOREIGN KEY(%s) REFERENCES %s(%s));""" % (colu.bend_table, colu.bnd_uid, colu.deg,
+                                  colu.bnd_dir, colu.bnd_type, colu.bnd_gps, colu.bnd_gps,
                                   colu.attributes_table, colu.gps_point))
     conn.commit()
     print("{} table created.".format(colu.bend_table))
 
     # Creating the ComboBend Table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY , %s REAL NOT
-        NULL, %s VARCHAR(25), %s INTEGER NOT NULL REFERENCES %s(%s));""" %
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s REAL NOT
+        NULL, %s VARCHAR(25), %s INTEGER UNIQUE NOT NULL, FOREIGN KEY(%s) REFERENCES %s(%s));""" %
         (colu.cmb_bend_table, colu.cmbo_uid, colu.deg2, colu.bnd_dir2,
-         colu.gps_point, colu.attributes_table, colu.gps_point))
+         colu.c_bnd_gps, colu.c_bnd_gps, colu.attributes_table, colu.gps_point))
     conn.commit()
     print("{} table created.".format(colu.cmb_bend_table))
 
@@ -56,10 +56,10 @@ try:
         """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s VARCHAR(25)
         NOT NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s VARCHAR(25), %s REAL
         NOT NULL, %s VARCHAR(25), %s VARCHAR(25) DEFAULT 'N/A', %s VARCHAR(25) NOT
-        NULL, %s VARCHAR(25) DEFAULT 'N/A', %s INTEGER NOT NULL REFERENCES %s(%s));"""
+        NULL, %s VARCHAR(25) DEFAULT 'N/A', %s INTEGER UNIQUE NOT NULL, FOREIGN KEY(%s) REFERENCES %s(%s));"""
         % (colu.weld_table, colu.weld_uid, colu.wld_type, colu.wld_x_id,
            colu.upstream_jt, colu.downstream_jt, colu.ah_length, colu.ht,
-           colu.wll_chng, colu.ditch_loc, colu.welder_initials, colu.gps_point,
+           colu.wll_chng, colu.ditch_loc, colu.welder_initials, colu.wld_gps, colu.wld_gps,
            colu.attributes_table, colu.gps_point))
     conn.commit()
     print("{} table created.".format(colu.weld_table))
