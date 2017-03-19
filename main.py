@@ -9,22 +9,22 @@ cur = None
 conn = None
 
 try:
-    conn = pg.connect("host=127.0.0.1 dbname=as_built user=postgres password=Narmar123 port=5433")
+    conn = pg.connect("host=127.0.0.1 dbname=as_built2 user=postgres password=Narmar123 port=5433")
     cur = conn.cursor()
     print("Connected to database. ")
 except pg.DatabaseError as e:
     print(e)
 
-query_result = db_helper.attributes_query(4743, cur, conn)
-for k, v in query_result.items():
-    print(k,v)
-
 '''
+find_me = int(input("Enter the GPS Point to Search: "))
+db_helper.attributes_query(find_me, cur, conn)
+'''
+
 try:
     # Creating the Common Attributes table.
     cur.execute(
         """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s INTEGER NOT NULL, %s
-        REAL NOT NULL, %s INTEGER NOT NULL, %s INTEGER NOT NULL, %s REAL NOT
+        REAL NOT NULL, %s INTEGER NOT NULL UNIQUE, %s INTEGER NOT NULL, %s REAL NOT
         NULL, %s VARCHAR(25));""" % (colu.attributes_table, colu.ca_uid,
                                      colu.whole_station, colu.offset_station,
                                      colu.gps_point, colu.grade_point,
@@ -34,31 +34,33 @@ try:
 
     # Creating the Bend Table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY REFERENCES %s(%s),
-        %s REAL NOT NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25));"""
-        % (colu.bend_table, colu.bnd_uid, colu.attributes_table,
-                colu.ca_uid, colu.deg, colu.bnd_dir, colu.bnd_type))
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s REAL NOT
+        NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s INTEGER NOT NULL
+        REFERENCES %s(%s));""" % (colu.bend_table, colu.bnd_uid, colu.deg,
+                                  colu.bnd_dir, colu.bnd_type, colu.gps_point,
+                                  colu.attributes_table, colu.gps_point))
     conn.commit()
     print("{} table created.".format(colu.bend_table))
 
     # Creating the ComboBend Table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY REFERENCES %s(%s), %s REAL NOT
-        NULL, %s VARCHAR(25));"""
-        % (colu.cmb_bend_table, colu.cmbo_uid, colu.attributes_table,
-                colu.ca_uid, colu.deg2, colu.bnd_dir2))
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY , %s REAL NOT
+        NULL, %s VARCHAR(25), %s INTEGER NOT NULL REFERENCES %s(%s));""" %
+        (colu.cmb_bend_table, colu.cmbo_uid, colu.deg2, colu.bnd_dir2,
+         colu.gps_point, colu.attributes_table, colu.gps_point))
     conn.commit()
     print("{} table created.".format(colu.cmb_bend_table))
 
     # Creating the Weld Table.
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY REFERENCES %s(%s), %s VARCHAR(25)
+        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s VARCHAR(25)
         NOT NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s VARCHAR(25), %s REAL
         NOT NULL, %s VARCHAR(25), %s VARCHAR(25) DEFAULT 'N/A', %s VARCHAR(25) NOT
-        NULL, %s VARCHAR(25) DEFAULT 'N/A');"""
-        % (colu.weld_table, colu.weld_uid, colu.attributes_table, colu.ca_uid,
-                colu.wld_type, colu.wld_x_id, colu.upstream_jt, colu.downstream_jt,
-                colu.ah_length, colu.ht, colu.wll_chng, colu.ditch_loc, colu.welder_initials))
+        NULL, %s VARCHAR(25) DEFAULT 'N/A', %s INTEGER NOT NULL REFERENCES %s(%s));"""
+        % (colu.weld_table, colu.weld_uid, colu.wld_type, colu.wld_x_id,
+           colu.upstream_jt, colu.downstream_jt, colu.ah_length, colu.ht,
+           colu.wll_chng, colu.ditch_loc, colu.welder_initials, colu.gps_point,
+           colu.attributes_table, colu.gps_point))
     conn.commit()
     print("{} table created.".format(colu.weld_table))
 except pg.Error as e:
@@ -100,9 +102,10 @@ while go_or_stop == "YES":
             bendy = hf.collect_bend()
             bnd_atts = sc.Bend(*bendy)
             cur.execute(
-                "INSERT INTO %s (%s, %s, %s) VALUES ('%s','%s','%s');" %
-                (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-                    bnd_atts.degree, bnd_atts.direction, bnd_atts.type))
+                "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');"
+                % (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
+                   colu.gps_point, bnd_atts.degree, bnd_atts.direction,
+                   bnd_atts.type, ca_atts.grade_shot))
             conn.commit()
         except pg.Error as e:
             print(e.pgerror)
@@ -126,14 +129,15 @@ while go_or_stop == "YES":
             weldy = hf.collect_weld()
             wld_atts = sc.Weld(*weldy)
             cur.execute(
-                """INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES
-                ('%s','%s','%s','%s','%s','%s','%s','%s','%s');""" %
-                (colu.weld_table, colu.wld_type, colu.wld_x_id,
-                 colu.upstream_jt, colu.downstream_jt, colu.ah_length, colu.ht,
-                 colu.wll_chng, colu.ditch_loc, colu.welder_initials,
+                """INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');""" %
+                (colu.weld_table, colu.wld_type, colu.wld_x_id, colu.upstream_jt,
+                 colu.downstream_jt, colu.ah_length, colu.ht, colu.wll_chng,
+                 colu.ditch_loc, colu.welder_initials, colu.gps_point,
                  wld_atts.weld_type, wld_atts.weld_id, wld_atts.up_asset,
                  wld_atts.down_asset, wld_atts.length_ah, wld_atts.heat,
-                 wld_atts.wall_change, wld_atts.ditch, wld_atts.welder_inits))
+                 wld_atts.wall_change, wld_atts.ditch, wld_atts.welder_inits,
+                 ca_atts.gps_shot))
             conn.commit()
         except pg.Error as e:
             print(e.pgerror)
@@ -156,20 +160,20 @@ while go_or_stop == "YES":
             bendy = hf.collect_bend()
             bnd_atts = sc.Bend(*bendy)
             cur.execute(
-                "INSERT INTO %s (%s, %s, %s) VALUES ('%s','%s','%s');" %
+                "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');" %
                 (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-                 bnd_atts.degree, bnd_atts.direction,bnd_atts.type))
+                 colu.gps_point, bnd_atts.degree, bnd_atts.direction, bnd_atts.type,
+                 ca_atts.gps_shot))
             cmbdy = hf.collect_combo_bend()
             cmbo = sc.ComboBend(*cmbdy)
             cur.execute(
-                "INSERT INTO %s (%s, %s) VALUES ('%s','%s');" %
-                (colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, cmbo.degree_2,
-                 cmbo.direction_2))
+                "INSERT INTO %s (%s, %s, %s) VALUES ('%s','%s','%s');" %
+                (colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, colu.gps_point,
+                 cmbo.degree_2, cmbo.direction_2, ca_atts.gps_shot))
             conn.commit()
         except pg.Error as e:
             print(e.pgerror)
 
-'''
 
 if cur:
     cur.close()
