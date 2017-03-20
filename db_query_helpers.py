@@ -9,7 +9,7 @@ c_bnd_labels = ('Degree 2:', 'Direction 2:')
 weld_labels = ('Weld Type:', 'Weld Id(X-Ray):', 'Upstream Joint:',
                'Downsteam Joint:', 'Length Ahead:', 'Heat:', 'Wall Change:',
                'Location:', 'Welder Initials:')
-combined_bnd_labels = bnd_labels + c_bnd_labels
+combined_bnd_labels = common_labels + bnd_labels + c_bnd_labels
 
 
 def attributes_query(find_gps_shot, c_cursor, c_conn):
@@ -76,20 +76,18 @@ def cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn):
     """
     try:
         cm_cursor.execute(
-            """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
-            FROM %s
-            INNER JOIN %s
-            ON attributes.gps_shot = bend.gps_shot
-            INNER JOIN %s
-            ON bend.gps_shot = combo_bend.gps_shot
-            WHERE attributes.gps_shot = '%s';"""
-            % (cols.whole_station, cols.offset_station, cb_gps_shot,
-                cols.grade_point, cols.depth_cover, cols.jottings,
-                        cols.deg, cols.bnd_dir, cols.bnd_type, cols.deg2, cols.bnd_dir2,
-                        cols.attributes_table, cols.bend_table, cols.cmb_bend_table, cb_gps_shot))
+        """SELECT whole_station||'+'||offset_station,attributes.gps_shot,grade_shot,cover,notes,degree,direction,
+        degree_2,direction_2,type
+        FROM attributes
+        INNER JOIN bend
+        ON attributes.gps_shot = bend.gps_shot
+        INNER JOIN combo_bend
+        ON bend.gps_shot = combo_bend.gps_shot
+        WHERE attributes.gps_shot = '%s';
+        """ % (cb_gps_shot))
         cb_query_result = cm_cursor.fetchone()
         print(cb_query_result)
-        for a, b in zip(common_labels + combined_bnd_labels, cb_query_result):
+        for a, b in zip(combined_bnd_labels, cb_query_result):
             print(a,b)
             return cb_query_result
     except pg.DatabaseError as e:
