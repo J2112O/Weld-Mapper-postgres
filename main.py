@@ -16,7 +16,7 @@ except pg.DatabaseError as e:
     print(e)
 
 find_me = int(input("Enter the GPS Point to Search: "))
-db_helper.bend_query(find_me, cur, conn)
+db_helper.cmbo_bend_query(find_me, cur, conn)
 
 '''
 try:
