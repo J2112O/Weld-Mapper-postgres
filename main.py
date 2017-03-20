@@ -15,11 +15,10 @@ try:
 except pg.DatabaseError as e:
     print(e)
 
-'''
 find_me = int(input("Enter the GPS Point to Search: "))
-db_helper.attributes_query(find_me, cur, conn)
-'''
+db_helper.bend_query(find_me, cur, conn)
 
+'''
 try:
     # Creating the Common Attributes table.
     cur.execute(
@@ -104,8 +103,8 @@ while go_or_stop == "YES":
             cur.execute(
                 "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');"
                 % (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-                   colu.gps_point, bnd_atts.degree, bnd_atts.direction,
-                   bnd_atts.type, ca_atts.grade_shot))
+                   colu.bnd_gps, bnd_atts.degree, bnd_atts.direction,
+                   bnd_atts.type, ca_atts.gps_shot))
             conn.commit()
         except pg.Error as e:
             print(e.pgerror)
@@ -133,7 +132,7 @@ while go_or_stop == "YES":
                 VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');""" %
                 (colu.weld_table, colu.wld_type, colu.wld_x_id, colu.upstream_jt,
                  colu.downstream_jt, colu.ah_length, colu.ht, colu.wll_chng,
-                 colu.ditch_loc, colu.welder_initials, colu.gps_point,
+                 colu.ditch_loc, colu.welder_initials, colu.wld_gps,
                  wld_atts.weld_type, wld_atts.weld_id, wld_atts.up_asset,
                  wld_atts.down_asset, wld_atts.length_ah, wld_atts.heat,
                  wld_atts.wall_change, wld_atts.ditch, wld_atts.welder_inits,
@@ -162,17 +161,19 @@ while go_or_stop == "YES":
             cur.execute(
                 "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');" %
                 (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-                 colu.gps_point, bnd_atts.degree, bnd_atts.direction, bnd_atts.type,
+                 colu.bnd_gps, bnd_atts.degree, bnd_atts.direction, bnd_atts.type,
                  ca_atts.gps_shot))
             cmbdy = hf.collect_combo_bend()
             cmbo = sc.ComboBend(*cmbdy)
             cur.execute(
                 "INSERT INTO %s (%s, %s, %s) VALUES ('%s','%s','%s');" %
-                (colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, colu.gps_point,
+                (colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, colu.c_bnd_gps,
                  cmbo.degree_2, cmbo.direction_2, ca_atts.gps_shot))
             conn.commit()
         except pg.Error as e:
             print(e.pgerror)
+
+        '''
 
 
 if cur:
