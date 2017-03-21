@@ -1,4 +1,4 @@
-import psycopg2 as pg
+import psycopg2 as pg2
 import survey_codes as sc
 import helper_functions as hf
 import db_column_cons as colu
@@ -9,16 +9,23 @@ cur = None
 conn = None
 
 try:
-    conn = pg.connect("host=127.0.0.1 dbname=as_built2 user=postgres password=Narmar123 port=5433")
+    conn = pg2.connect("host=127.0.0.1 dbname=as_built2 user=postgres password=Narmar123 port=5433")
     cur = conn.cursor()
     print("Connected to database. ")
-except pg.DatabaseError as e:
+except pg2.DatabaseError as e:
     print(e)
 
+# Getting the GPS Point from the user to search. This is critical as this is a key found in all database tables.
 find_me = int(input("Enter the GPS Point to Search: "))
-db_helper.cmbo_bend_query(find_me, cur, conn)
-
+for code in code_choices:
+    print(code)
+db_helper.weld_query(find_me, cur, conn, 'ONE')
 '''
+# Getting the code to search for here, in order to call the proper function to use for the query.
+which_code = str(input("Which Code to Search: ")).upper()
+# Using this variable for how many records the user wants returned from the query.
+how_many = str(input("How many Records?\nChoose \"One\" or \"All\" available: ")).upper()
+
 try:
     # Creating the Common Attributes table.
     cur.execute(
