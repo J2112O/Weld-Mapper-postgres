@@ -99,7 +99,7 @@ def bend_query(findb_gps_shot, cb_cursor, cb_conn, search_count):
             # printing with the query results.
             for record in b_many_result:
                 for a, b in zip(common_labels + bnd_labels, record):
-                    print(a,b, sep='')
+                    print(a,b)
         except pg2.DatabaseError as e:
             print(e.pgerror)
 
@@ -113,35 +113,56 @@ def cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn, search_count):
     :param search_count: The number of records to return.
     :return: A list of the searched combo bend attributes.
     """
-    try:
-        cm_cursor.execute(
-            """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
-            FROM %s
-            INNER JOIN %s
-            ON attributes.gps_shot = bend.gps_shot
-            INNER JOIN %s
-            ON bend.gps_shot = combo_bend.gps_shot
-            AND attributes.gps_shot = bend.gps_shot
-            WHERE attributes.gps_shot = '%s';"""
-            % (cols.whole_station, cols.offset_station, cb_gps_shot,
-               cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
-               cols.bnd_dir, cols.bnd_type, cols.deg2, cols.bnd_dir2,
-               cols.attributes_table, cols.bend_table, cols.cmb_bend_table,
-               cb_gps_shot))
-        # Assigning the results of the cursor to this tuple and fetching one record.
-        cb_query_result = cm_cursor.fetchone()
-        # Assigning the results of the cursor to this tuple and fetching all the records.
-        many_query_result = cm_cursor.fetchall()
-        # Merging the common, bend and combo bend labels together with the query result for printing and displaying
-        # to the user.
-        if search_count == 'ONE':
+    if search_count == 'ONE':
+        try:
+            cm_cursor.execute(
+                """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                FROM %s
+                INNER JOIN %s
+                ON attributes.gps_shot = bend.gps_shot
+                INNER JOIN %s
+                ON bend.gps_shot = combo_bend.gps_shot
+                AND attributes.gps_shot = bend.gps_shot
+                WHERE attributes.gps_shot = '%s';"""
+                % (cols.whole_station, cols.offset_station, cb_gps_shot,
+                   cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
+                   cols.bnd_dir, cols.bnd_type, cols.deg2, cols.bnd_dir2,
+                   cols.attributes_table, cols.bend_table, cols.cmb_bend_table,
+                   cb_gps_shot))
+            # Assigning the results of the cursor to this tuple and fetching one record.
+            cb_query_result = cm_cursor.fetchone()
+            # Assigning the results of the cursor to this tuple and fetching all the records.
+            many_query_result = cm_cursor.fetchall()
+            # Merging the common, bend and combo bend labels together with the query result for printing and displaying
+            # to the user.
             for a, b in zip(common_labels + bnd_labels + c_bnd_labels, cb_query_result):
-                print(a,b)
-        else:
-            for a, b in zip(common_labels + bnd_labels + c_bnd_labels, many_query_result):
                 print(a, b)
-    except pg2.DatabaseError as e:
-        print(e.pgerror)
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
+    elif search_count == 'ALL':
+        try:
+            cm_cursor.execute(
+                """SELECT %s||'+'||%s,attributes.gps_shot,%s,%s,%s,%s,%s,%s,%s,%s
+                FROM %s
+                INNER JOIN %s
+                ON attributes.gps_shot = bend.gps_shot
+                INNER JOIN %s
+                ON bend.gps_shot = combo_bend.gps_shot
+                AND attributes.gps_shot = bend.gps_shot;"""
+                % (cols.whole_station, cols.offset_station,
+                   cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
+                   cols.bnd_dir, cols.bnd_type, cols.deg2, cols.bnd_dir2,
+                   cols.attributes_table, cols.bend_table, cols.cmb_bend_table))
+            # Assigning the results of the cursor to this tuple and fetching one record.
+            # Assigning the results of the cursor to this tuple and fetching all the records.
+            many_query_result = cm_cursor.fetchall()
+            # Merging the common, bend and combo bend labels together with the query result for printing and displaying
+            # to the user.
+            for record in many_query_result:
+                for a, b in zip(common_labels + bnd_labels +c_bnd_labels, record):
+                    print(a,b)
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
 
 
 def weld_query(w_gps_shot, w_cursor, w_conn, search_count):
@@ -154,28 +175,45 @@ def weld_query(w_gps_shot, w_cursor, w_conn, search_count):
     :param search_count: This parameter indicates how many records to return.
     :return: Returns a list of all the attributes for the Weld that is searched.
     """
-    try:
-        w_cursor.execute(
-            """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
-            FROM %s
-            INNER JOIN %s
-            ON attributes.gps_shot = weld.gps_shot
-            WHERE attributes.gps_shot = '%s';"""
-            % (cols.whole_station, cols.offset_station, w_gps_shot,
-               cols.grade_point, cols.depth_cover, cols.jottings,
-               cols.wld_type, cols.wld_x_id, cols.upstream_jt,
-               cols.downstream_jt, cols.ah_length, cols.ht, cols.wll_chng,
-               cols.ditch_loc, cols.welder_initials, cols.attributes_table,
-               cols.weld_table, w_gps_shot))
-        # Assigning the results of the cursor to this tuple and fetching one record.
-        wld_query_result = w_cursor.fetchone()
-        # Assigning the results of the cursor to this tuple and fetching all the records.
-        wld_many_result = w_cursor.fetchall()
-        if search_count == 'ONE':
+    if search_count == 'ONE':
+        try:
+            w_cursor.execute(
+                """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                FROM %s
+                INNER JOIN %s
+                ON attributes.gps_shot = weld.gps_shot
+                WHERE attributes.gps_shot = '%s';"""
+                % (cols.whole_station, cols.offset_station, w_gps_shot,
+                   cols.grade_point, cols.depth_cover, cols.jottings,
+                   cols.wld_type, cols.wld_x_id, cols.upstream_jt,
+                   cols.downstream_jt, cols.ah_length, cols.ht, cols.wll_chng,
+                   cols.ditch_loc, cols.welder_initials, cols.attributes_table,
+                   cols.weld_table, w_gps_shot))
+            # Assigning the results of the cursor to this tuple and fetching one record.
+            wld_query_result = w_cursor.fetchone()
+            # Assigning the results of the cursor to this tuple and fetching all the records.
+            wld_many_result = w_cursor.fetchall()
             for a, b in zip(common_labels + weld_labels, wld_query_result):
-                print(a,b)
-        else:
-            for a, b in zip(common_labels + weld_labels, wld_many_result):
                 print(a, b)
-    except pg2.DatabaseError as e:
-        print(e.pgerror)
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
+    elif search_count == 'ALL':
+        try:
+            w_cursor.execute(
+                """SELECT %s||'+'||%s,attributes.gps_shot,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                FROM %s
+                INNER JOIN %s
+                ON attributes.gps_shot = weld.gps_shot;"""
+                % (cols.whole_station, cols.offset_station,
+                   cols.grade_point, cols.depth_cover, cols.jottings,
+                   cols.wld_type, cols.wld_x_id, cols.upstream_jt,
+                   cols.downstream_jt, cols.ah_length, cols.ht, cols.wll_chng,
+                   cols.ditch_loc, cols.welder_initials, cols.attributes_table,
+                   cols.weld_table))
+            # Assigning the results of the cursor to this tuple and fetching all the records.
+            wld_many_result = w_cursor.fetchall()
+            for record in wld_many_result:
+                for a, b in zip(common_labels + weld_labels, record):
+                    print(a,b)
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
