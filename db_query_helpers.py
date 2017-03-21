@@ -20,31 +20,36 @@ def attributes_query(find_gps_shot, c_cursor, c_conn, search_count):
     :param c_conn: Current active connection to use.
     :return A list of the common attributes of the find_gps_shot query.
     """
-    try:
-        c_cursor.execute(
-            """SELECT * FROM %s WHERE %s = '%s';""" % (cols.attributes_table,
-                                                       cols.gps_point,
-                                                       find_gps_shot))
-        query_result = c_cursor.fetchone()  # Assigning the one returned record to this tuple.
-        many_results = c_cursor.fetchall()  # Assigning all the returned records to this tuple.
-        # Joining the string values of the whole_station and offset_station
-        # for printing/viewing. Decided to code this here on the client side,
-        # instead of server side with 'whole_station||'+'||offset_station'
-        final_station = (str(query_result[1]), str(query_result[2]))
-        many_final_station = (str(many_results[1]), str(many_results[2]))
-        # List of all the final results in a nice readable and printable format for display, in order.
-        presented_result = ['+'.join(final_station), query_result[3],
-                            query_result[4], query_result[5], query_result[6]]
-        many_presented_result = ['+'.join(many_final_station), query_result[3],
-                            query_result[4], query_result[5], query_result[6]]
-        if search_count == 'ONE':
+    if search_count == 'ONE':
+        try:
+            c_cursor.execute(
+                """SELECT * FROM %s WHERE %s = '%s';""" % (cols.attributes_table,
+                                                           cols.gps_point,
+                                                           find_gps_shot))
+            query_result = c_cursor.fetchone()  # Assigning the one returned record to this tuple.
+            # Joining the string values of the whole_station and offset_station
+            # for printing/viewing. Decided to code this here on the client side,
+            # instead of server side with 'whole_station||'+'||offset_station'
+            final_station = (str(query_result[1]), str(query_result[2]))
+            # List of all the final results in a nice readable and printable format for display, in order.
+            presented_result = ['+'.join(final_station), query_result[3],
+                                query_result[4], query_result[5], query_result[6]]
             for a, b in zip(common_labels, presented_result):
                 print(a, b)
-        else:
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
+    elif search_count == 'ALL':
+        try:
+            c_cursor.execute(
+                """SELECT * FROM %s;""" % (cols.attributes_table,))
+            many_results = c_cursor.fetchall()  # Assigning all the returned records to this tuple.
+            many_final_station = (str(many_results[1]), str(many_results[2]))
+            many_presented_result = ['+'.join(many_final_station), many_results[3],
+                                many_results[4], many_results[5], many_results[6]]
             for a, b in zip(common_labels, many_presented_result):
                 print(a, b)
-    except pg2.DatabaseError as e:
-        print(e.pgerror)
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
 
 
 def bend_query(findb_gps_shot, cb_cursor, cb_conn, search_count):
@@ -81,21 +86,20 @@ def bend_query(findb_gps_shot, cb_cursor, cb_conn, search_count):
     elif search_count == 'ALL':
         try:
             cb_cursor.execute(
-                """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s
+                """SELECT %s||'+'||%s,attributes.gps_shot,%s,%s,%s,%s,%s,%s
                 FROM %s
                 INNER JOIN %s
                 ON attributes.gps_shot = bend.gps_shot;"""
-                % (cols.whole_station, cols.offset_station, findb_gps_shot,
-                   cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
-                   cols.bnd_dir, cols.bnd_type, cols.attributes_table,
-                   cols.bend_table))
+                % (cols.whole_station, cols.offset_station, cols.grade_point,
+                   cols.depth_cover, cols.jottings, cols.deg, cols.bnd_dir,
+                   cols.bnd_type, cols.attributes_table, cols.bend_table))
             # Assigning the results of the cursor to this tuple and fetching all the records.
             b_many_result = cb_cursor.fetchall()
             # Merging the common_labels and the bend_labels together for
             # printing with the query results.
-            for record in cb_cursor.fetchall():
-                for a, b in zip(common_labels + bnd_labels, b_many_result):
-                    print(a, b)
+            for record in b_many_result:
+                for a, b in zip(common_labels + bnd_labels, record):
+                    print(a,b, sep='')
         except pg2.DatabaseError as e:
             print(e.pgerror)
 
