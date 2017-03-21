@@ -53,30 +53,51 @@ def bend_query(findb_gps_shot, cb_cursor, cb_conn, search_count):
     :param findb_gps_shot: Associated gps_shot of the bend in question.
     :param cb_cursor: current, active cursor to use
     :param cb_conn: current active connection to use
+    :param search_count: The number of records to return.
     :return: A list of the searched bend attributes with common attributes
     """
     # Inner Joining the attributes and bend table on the shared gps_shot
-    try:
-        cb_cursor.execute(
-            """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s FROM %s INNER JOIN %s
-            ON attributes.gps_shot = bend.gps_shot WHERE attributes.gps_shot =
-            '%s';""" % (cols.whole_station, cols.offset_station, findb_gps_shot,
-                        cols.grade_point, cols.depth_cover, cols.jottings,
-                        cols.deg, cols.bnd_dir, cols.bnd_type,
-                        cols.attributes_table, cols.bend_table, findb_gps_shot))
-        # Assigning the results of the cursor to this tuple and fetching one record.
-        b_query_result = cb_cursor.fetchone()
-        # Assigning the results of the cursor to this tuple and fetching all the records.
-        b_many_result = cb_cursor.fetchall()
-        # Adding the common_labels and the bend_labels together for printing with the query results.
-        if search_count == 'ONE':
+
+    if search_count == 'ONE':
+        try:
+            cb_cursor.execute(
+                """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s
+                FROM %s
+                INNER JOIN %s
+                ON attributes.gps_shot = bend.gps_shot
+                WHERE attributes.gps_shot = '%s';"""
+                % (cols.whole_station, cols.offset_station, findb_gps_shot,
+                   cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
+                   cols.bnd_dir, cols.bnd_type, cols.attributes_table,
+                   cols.bend_table, findb_gps_shot))
+            # Assigning the results of the cursor to this tuple and fetching one record.
+            b_query_result = cb_cursor.fetchone()
+            # Merging the common_labels and the bend_labels together for
+            # printing with the query results.
             for a, b in zip(common_labels + bnd_labels, b_query_result):
                 print(a, b)
-        else:
-            for a, b in zip(common_labels + bnd_labels, b_many_result):
-                print(a, b)
-    except pg2.DatabaseError as e:
-        print(e.pgerror)
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
+    elif search_count == 'ALL':
+        try:
+            cb_cursor.execute(
+                """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s
+                FROM %s
+                INNER JOIN %s
+                ON attributes.gps_shot = bend.gps_shot;"""
+                % (cols.whole_station, cols.offset_station, findb_gps_shot,
+                   cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
+                   cols.bnd_dir, cols.bnd_type, cols.attributes_table,
+                   cols.bend_table))
+            # Assigning the results of the cursor to this tuple and fetching all the records.
+            b_many_result = cb_cursor.fetchall()
+            # Merging the common_labels and the bend_labels together for
+            # printing with the query results.
+            for record in cb_cursor.fetchall():
+                for a, b in zip(common_labels + bnd_labels, b_many_result):
+                    print(a, b)
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
 
 
 def cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn, search_count):
@@ -85,6 +106,7 @@ def cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn, search_count):
     :param cb_gps_shot: Associated gps_shot of the combo bend in question
     :param cm_cursor: Current, active cursor object
     :param cm_conn: Current active connection to use
+    :param search_count: The number of records to return.
     :return: A list of the searched combo bend attributes.
     """
     try:

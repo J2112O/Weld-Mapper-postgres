@@ -17,9 +17,9 @@ except pg2.DatabaseError as e:
 
 # Getting the GPS Point from the user to search. This is critical as this is a key found in all database tables.
 find_me = int(input("Enter the GPS Point to Search: "))
-for code in code_choices:
-    print(code)
-db_helper.weld_query(find_me, cur, conn, 'ONE')
+#for code in code_choices:
+    #print(code)
+db_helper.bend_query(find_me, cur, conn, 'ALL')
 '''
 # Getting the code to search for here, in order to call the proper function to use for the query.
 which_code = str(input("Which Code to Search: ")).upper()
