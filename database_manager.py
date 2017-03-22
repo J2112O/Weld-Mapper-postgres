@@ -37,7 +37,7 @@ def create_bend_table(cur, conn):
     try:
         # Creating the Bend Table.
         cur.execute(
-            """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s REAL NOT
+           """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s REAL NOT
             NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s INTEGER UNIQUE NOT NULL,
             FOREIGN KEY(%s) REFERENCES %s(%s));""" % (colu.bend_table, colu.bnd_uid, colu.deg,
                                                     colu.bnd_dir, colu.bnd_type, colu.bnd_gps, colu.bnd_gps,
@@ -72,8 +72,6 @@ def create_cmbo_bnd_table(cur, conn):
 
 def create_weld_table(cur, conn):
     """
-    This function creates the weld table.
-    :param cur: Active and connected cursor object to the database
     :param conn: Active connection object to the database
     :return: This function does not return any object.
     """
@@ -95,7 +93,7 @@ def create_weld_table(cur, conn):
         print("{} table not created.".format(colu.weld_table))
 
 
-def attributes_insert(cur, conn):
+def attributes_insert(cur, conn, *attribute_obj):
     """
     This function inserted collected survey attributes into the attributes table.
     :param cur: Active and live cursor to the database.
@@ -105,9 +103,9 @@ def attributes_insert(cur, conn):
     """
     # Assigning the results of the collect_common_atts() function to this for
     # tuple unpacking on insert.
-    common = cf.collect_common_atts()
+    #common = cf.collect_common_atts()
     # Assigning the above collected values to the Common Attributes class
-    ca_atts = sc.CommonAttributes(*common)
+    #ca_atts = sc.CommonAttributes(*common)
     # Inserting into the Common Attributes table. Note: setting the values of
     # the CommonAttributes class with those member variables.
     try:
@@ -116,21 +114,19 @@ def attributes_insert(cur, conn):
             '%s','%s','%s','%s');"""
             % (colu.attributes_table, colu.whole_station, colu.offset_station,
                colu.gps_point, colu.grade_point, colu.depth_cover, colu.jottings,
-               ca_atts.whole_station_number, ca_atts.dec_station_num,
-               ca_atts.gps_shot, ca_atts.grade_shot, ca_atts.cover,
-               ca_atts.notes))
+               attribute_obj[0], attribute_obj[1],
+               attribute_obj[2], attribute_obj[3], attribute_obj[4],
+               attribute_obj[5]))
         conn.commit()
         print("Attribute record inserted successfully.")
-        return ca_atts
     except pg2.Error as e:
         print(e.pgerror)
         print("Attribute record not inserted.")
 
 
-def bend_insert(some_gps_point, cur, conn):
+def bend_insert(cur, conn, *bnd_obj):
     """
     This function inserts the collected bend attributes into the database.
-    :param some_gps_point: Passed in gps_shot from the attributes table.
     :param cur: Active and current cursor object to the database.
     :param conn: Active and current connection object to the database.
     :return: This function does not return any object.
@@ -141,10 +137,60 @@ def bend_insert(some_gps_point, cur, conn):
         cur.execute(
             "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');"
             % (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-               colu.bnd_gps, bnd_atts.degree, bnd_atts.direction,
-               bnd_atts.type, some_gps_point))
+               colu.bnd_gps, bnd_obj[7], bnd_obj[8],
+               bnd_obj[9], bnd_obj[2]))
         conn.commit()
         print("Bend record inserted successfully.")
     except pg2.Error as e:
         print(e.pgerror)
         print("Bend record not inserted.")
+
+
+def comb_bend_insert(some_gps_point, cur, conn):
+    """
+    This function inserts the collected combo bend attributes into the database.
+    :param some_gps_point: Passed in gps_shot from the attributes table.
+    :param cur: Active and current cursor object to the database.
+    :param conn: Active and current connection object to the database.
+    :return: This function does not return any object.
+    """
+    try:
+        cmbdy = cf.collect_combo_bend()
+        cmbo = sc.ComboBend(*cmbdy)
+        cur.execute(
+            "INSERT INTO %s (%s, %s, %s) VALUES ('%s','%s','%s');" %
+            (colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, colu.c_bnd_gps,
+            cmbo.degree_2, cmbo.direction_2, some_gps_point))
+        conn.commit()
+        print("Combo Bend record inserted successfully.")
+    except pg2.DatabaseError as e:
+        print(e.pgerror)
+        print("Combo Bend record not inserted.")
+
+
+def weld_insert(some_gps_point, cur, conn):
+    """
+    This function inserts the collected weld attributes into the database.
+    :param some_gps_point: Passed in gps_shot from the attributes table.
+    :param cur: Active and current cursor object to the database.
+    :param conn: Active and current connection object to the database.
+    :return: This function does not return any object.
+    """
+    try:
+        weldy = cf.collect_weld()
+        wld_atts = sc.Weld(*weldy)
+        cur.execute(
+            """INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');""" %
+            (colu.weld_table, colu.wld_type, colu.wld_x_id, colu.upstream_jt,
+             colu.downstream_jt, colu.ah_length, colu.ht, colu.wll_chng,
+             colu.ditch_loc, colu.welder_initials, colu.wld_gps,
+             wld_atts.weld_type, wld_atts.weld_id, wld_atts.up_asset,
+             wld_atts.down_asset, wld_atts.length_ah, wld_atts.heat,
+             wld_atts.wall_change, wld_atts.ditch, wld_atts.welder_inits,
+             some_gps_point))
+        conn.commit()
+        print("Weld record inserted successfully.")
+    except pg2.DatabaseError as e:
+        print(e.pgerror)
+        print("Weld record not inserted.")

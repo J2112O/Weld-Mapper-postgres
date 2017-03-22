@@ -11,9 +11,12 @@ class CommonAttributes:
         self.notes = notes
 
 
-class Weld:
-    def __init__(self, weld_type, weld_id, up_asset, down_asset, length_ah,
-                 heat, wall_change, ditch, welder_inits):
+class Weld(CommonAttributes):
+    def __init__(self, whole_station_number, dec_station_num, gps_shot,
+                 grade_shot, cover, notes, weld_type, weld_id, up_asset,
+                 down_asset, length_ah, heat, wall_change, ditch, welder_inits):
+        super().__init__(whole_station_number, dec_station_num, gps_shot,
+                         grade_shot, cover, notes)
         self.weld_type = weld_type
         self.weld_id = weld_id
         self.up_asset = up_asset
@@ -25,14 +28,21 @@ class Weld:
         self.welder_inits = welder_inits
 
 
-class Bend:
-    def __init__(self, degree, direction, kind):
+class Bend(CommonAttributes):
+    def __init__(self, whole_station_number, dec_station_num, gps_shot,
+                 grade_shot, cover, notes, degree, direction, kind):
+        super().__init__(whole_station_number, dec_station_num, gps_shot,
+                         grade_shot, cover, notes)
         self.degree = degree
         self.direction = direction
         self.type = kind
 
 
-class ComboBend:
-    def __init__(self, direction_2, degree_2):
+class ComboBend(Bend):
+    def __init__(self, whole_station_number, dec_station_num, gps_shot,
+                 grade_shot, cover, notes, degree, direction, kind,
+                 direction_2, degree_2):
+        super().__init__(whole_station_number, dec_station_num, gps_shot,
+                         grade_shot, cover, notes, degree, direction, kind)
         self.direction_2 = direction_2
         self.degree_2 = degree_2
