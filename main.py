@@ -43,8 +43,10 @@ while go_or_stop != "EXIT":
             # tuple unpacking on insert.
             common = cf.collect_common_atts()
             # Assigning the above collected values to the Common Attributes class
-            ca_atts = sc.CommonAttributes(*common)
-            db_manager.attributes_insert(cur, conn, ca_atts)
+            #ca_atts = sc.CommonAttributes(*common)
+            bendy = cf.collect_bend()
+            bnd_atts = sc.Bend(*common,*bendy)
+            db_manager.attributes_insert(cur, conn, bnd_atts)
             try:
                 cur.execute(
                     """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES ('%s','%s',

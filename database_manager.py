@@ -132,8 +132,6 @@ def bend_insert(cur, conn, *bnd_obj):
     :return: This function does not return any object.
     """
     try:
-        bendy = cf.collect_bend()
-        bnd_atts = sc.Bend(*bendy)
         cur.execute(
             "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');"
             % (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
