@@ -73,8 +73,9 @@ which_code = str(input("Which Code to Search: ")).upper()
 # Using this variable for how many records the user wants returned from the query.
 how_many = str(input("How many Records?\nChoose \"One\" or \"All\" available: ")).upper()
 
-go_or_stop = str(input("Collect Data? (Yes or No) ")).upper()
-while go_or_stop == "YES":
+go_or_stop = str(input("Enter Collect to collect Data, Search to search the"
+                       "Database or Exit to leave the program. ")).upper()
+if go_or_stop == "COLLECT":
     for code in code_choices:
         print(code)
 
