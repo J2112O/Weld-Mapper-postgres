@@ -1,3 +1,4 @@
+# This module has db query functions in it.
 import psycopg2 as pg2
 import db_column_cons as cols
 
@@ -38,6 +39,7 @@ def attributes_query(find_gps_shot, c_cursor, c_conn, search_count):
                 print(a, b)
         except pg2.DatabaseError as e:
             print(e.pgerror)
+            print("No Record(s) Found.")
     elif search_count == 'ALL':
         try:
             c_cursor.execute(
@@ -50,6 +52,7 @@ def attributes_query(find_gps_shot, c_cursor, c_conn, search_count):
                 print(a, b)
         except pg2.DatabaseError as e:
             print(e.pgerror)
+            print("No Record(s) Found.")
 
 
 def single_bend_query(findb_gps_shot, cb_cursor, cb_conn):
@@ -80,6 +83,7 @@ def single_bend_query(findb_gps_shot, cb_cursor, cb_conn):
             print(a, b)
     except pg2.DatabaseError as e:
         print(e.pgerror)
+        print("No Record(s) Found.")
 
 
 def all_bend_query(cb_cursor, cb_conn):
@@ -107,6 +111,7 @@ def all_bend_query(cb_cursor, cb_conn):
                 print(a,b)
     except pg2.DatabaseError as e:
         print(e.pgerror)
+        print("No Record(s) Found.")
 
 
 def single_cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn):
@@ -140,6 +145,7 @@ def single_cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn):
             print(a, b)
     except pg2.DatabaseError as e:
         print(e.pgerror)
+        print("No Record(s) Found.")
 
 
 def all_cmbo_bend_query(cm_cursor, cm_conn):
@@ -172,6 +178,7 @@ def all_cmbo_bend_query(cm_cursor, cm_conn):
                 print(a, b)
     except pg2.DatabaseError as e:
         print(e.pgerror)
+        print("No Record(s) Found.")
 
 
 def single_weld_query(w_gps_shot, w_cursor, w_conn):
@@ -202,9 +209,16 @@ def single_weld_query(w_gps_shot, w_cursor, w_conn):
             print(a, b)
     except pg2.DatabaseError as e:
         print(e.pgerror)
+        print("No Record(s) Found.")
 
 
 def all_weld_query(w_cursor, w_conn):
+    """
+    This function returns all records for welds found in the database.
+    :param w_cursor: The current active cursor used for db activity.
+    :param w_conn: The current active connection to the database.
+    :return: A list of all records for all welds in the database.
+    """
     try:
         w_cursor.execute(
             """SELECT %s||'+'||%s,attributes.gps_shot,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
@@ -224,3 +238,4 @@ def all_weld_query(w_cursor, w_conn):
                 print(a, b)
     except pg2.DatabaseError as e:
         print(e.pgerror)
+        print("No Record(s) Found.")

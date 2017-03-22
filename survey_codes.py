@@ -1,4 +1,4 @@
-# This module has survey codes in it.
+# This module has classes of survey codes.
 
 
 class CommonAttributes:

@@ -1,3 +1,5 @@
+# Provides constants used for database table names and column names.
+
 attributes_table = "attributes"
 weld_table = "weld"
 bend_table = "bend"

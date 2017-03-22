@@ -1,4 +1,4 @@
-# this module contains helper functions
+# This module contains helper functions used to collect survey data.
 
 bend_directions = ('SAG', 'OVERBEND', 'PI-LT', 'PI-RT') # A tuple of bend directions
 bend_types = ('FIELD', 'FORGED', 'FACTORY','HOT') # A tuple of bend types

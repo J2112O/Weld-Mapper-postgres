@@ -1,7 +1,8 @@
 import psycopg2 as pg2
 import survey_codes as sc
-import helper_functions as hf
+import collector_functions as hf
 import db_column_cons as colu
+import database_manager as db_manager
 import db_query_helpers as db_helper
 
 code_choices = ("BEND", "WELD", "COMBO BEND")
@@ -11,57 +12,16 @@ conn = None
 try:
     conn = pg2.connect("host=127.0.0.1 dbname=as_built2 user=postgres password=Narmar123 port=5433")
     cur = conn.cursor()
-    print("Connected to database. ")
+    print("Connected to {} database.".format("as_built2"))
 except pg2.DatabaseError as e:
-    print(e)
-
-
-try:
-    # Creating the Common Attributes table.
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s INTEGER NOT NULL, %s
-        REAL NOT NULL, %s INTEGER UNIQUE NOT NULL, %s INTEGER NOT NULL, %s REAL NOT
-        NULL, %s VARCHAR(25));""" % (colu.attributes_table, colu.ca_uid,
-                                     colu.whole_station, colu.offset_station,
-                                     colu.gps_point, colu.grade_point,
-                                     colu.depth_cover, colu.jottings))
-    conn.commit()
-    print("{} table created.".format(colu.attributes_table))
-
-    # Creating the Bend Table.
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s REAL NOT
-        NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s INTEGER UNIQUE NOT NULL,
-        FOREIGN KEY(%s) REFERENCES %s(%s));""" % (colu.bend_table, colu.bnd_uid, colu.deg,
-                                  colu.bnd_dir, colu.bnd_type, colu.bnd_gps, colu.bnd_gps,
-                                  colu.attributes_table, colu.gps_point))
-    conn.commit()
-    print("{} table created.".format(colu.bend_table))
-
-    # Creating the ComboBend Table.
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s REAL NOT
-        NULL, %s VARCHAR(25), %s INTEGER UNIQUE NOT NULL, FOREIGN KEY(%s) REFERENCES %s(%s));""" %
-        (colu.cmb_bend_table, colu.cmbo_uid, colu.deg2, colu.bnd_dir2,
-         colu.c_bnd_gps, colu.c_bnd_gps, colu.attributes_table, colu.gps_point))
-    conn.commit()
-    print("{} table created.".format(colu.cmb_bend_table))
-
-    # Creating the Weld Table.
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS %s (%s SERIAL PRIMARY KEY, %s VARCHAR(25)
-        NOT NULL, %s VARCHAR(25) NOT NULL, %s VARCHAR(25), %s VARCHAR(25), %s REAL
-        NOT NULL, %s VARCHAR(25), %s VARCHAR(25) DEFAULT 'N/A', %s VARCHAR(25) NOT
-        NULL, %s VARCHAR(25) DEFAULT 'N/A', %s INTEGER UNIQUE NOT NULL, FOREIGN KEY(%s) REFERENCES %s(%s));"""
-        % (colu.weld_table, colu.weld_uid, colu.wld_type, colu.wld_x_id,
-           colu.upstream_jt, colu.downstream_jt, colu.ah_length, colu.ht,
-           colu.wll_chng, colu.ditch_loc, colu.welder_initials, colu.wld_gps, colu.wld_gps,
-           colu.attributes_table, colu.gps_point))
-    conn.commit()
-    print("{} table created.".format(colu.weld_table))
-except pg2.Error as e:
     print(e.pgerror)
 
+# Using the db_manager object to create all tables. Note: all tables are
+# wrapped in individual try/except clauses in their respective functions already.
+db_manager.create_attributes_table(cur, conn)  # Creating the attributes table.
+db_manager.create_bend_table(cur, conn)  # Creating the bend table.
+db_manager.create_cmbo_bnd_table(cur, conn)  # Creating the combo_bend table.
+db_manager.create_weld_table(cur, conn)  # Creating the weld table.
 
 go_or_stop = str(input("Enter Collect to collect Data, Search to search the"
                        "Database or Exit to leave the program. ")).upper()
@@ -72,36 +32,6 @@ while go_or_stop != "EXIT":
         print()
         choice = str(input("Enter the Survey Code to input data for: ")).upper()
         if choice == code_choices[0]:
-            # Bend was chosen so calling the needed methods and assigning to variables for tuple unpacking on insert
-            common = hf.collect_common_atts()
-            # Assigning the above collect values to the Common Attributes class
-            ca_atts = sc.CommonAttributes(*common)
-            # Inserting into the Common Attributes table
-            try:
-                cur.execute(
-                    """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES ('%s','%s',
-                    '%s','%s','%s','%s');""" % (colu.attributes_table,
-                                            colu.whole_station,
-                                            colu.offset_station, colu.gps_point,
-                                            colu.grade_point, colu.depth_cover,
-                                            colu.jottings, ca_atts.whole_station_number,
-                                            ca_atts.dec_station_num, ca_atts.gps_shot,
-                                            ca_atts.grade_shot, ca_atts.cover,
-                                            ca_atts.notes))
-                conn.commit()
-            except pg2.Error as e:
-                print(e.pgerror)
-            try:
-                bendy = hf.collect_bend()
-                bnd_atts = sc.Bend(*bendy)
-                cur.execute(
-                    "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');"
-                    % (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-                       colu.bnd_gps, bnd_atts.degree, bnd_atts.direction,
-                       bnd_atts.type, ca_atts.gps_shot))
-                conn.commit()
-            except pg2.Error as e:
-                print(e.pgerror)
         elif choice == code_choices[1]:
             # Weld was chosen so calling the needed methods and assigning to variables for tuple unpacking on insert
             common = hf.collect_common_atts()
