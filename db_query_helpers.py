@@ -57,6 +57,24 @@ def attributes_query(find_gps_shot, c_cursor, c_conn, search_count):
             print("No Record(s) Found.")
 
 
+def gps_shot_query(cur, conn):
+    """This function returns all gps_shots in the database.
+    :param
+        cur: Current, active cursor to use.
+    :param
+        conn: Current, active connection to use.
+    """
+    try:
+        cur.execute(
+            """SELECT %s
+            FROM %s;""" % (cols.gps_point, cols.attributes_table))
+        results = cur.fetchall()
+        for record in results:
+            print(record)
+    except pg2.DatabaseError as e:
+        print(e.pgerror)
+
+
 def single_bend_query(findb_gps_shot, cb_cursor, cb_conn):
     """This function displays the bend values associated with the passed in
         gps_point from the bend table.
@@ -87,6 +105,34 @@ def single_bend_query(findb_gps_shot, cb_cursor, cb_conn):
     except pg2.DatabaseError as e:
         print(e.pgerror)
         print("No Record(s) Found.")
+
+
+def counted_bend_query(cur, conn, desired_num):
+    """
+    This function displays a user-supplied number of results from the bend table.
+    :param
+        cur: The current, active cursor object.
+    :param
+        conn: The current active connection object.
+    :param
+        desired_num: User-supplied value for a certain number of records.
+    :return: Does not return any items.
+    """
+    try:
+        cur.execute(
+            """SELECT %s||'+'||%s,attributes.gps_shot,%s,%s,%s,%s,%s,%s
+            FROM %s
+            INNER JOIN %s
+            ON attributes.gps_shot = bend.gps_shot;"""
+            % (cols.whole_station, cols.offset_station, cols.grade_point,
+               cols.depth_cover, cols.jottings, cols.deg, cols.bnd_dir,
+               cols.bnd_type, cols.attributes_table, cols.bend_table))
+        these_results = cur.fetchmany(desired_num)
+        for record in these_results:
+            for a, b in zip(common_labels + bnd_labels, record):
+                print(a,b)
+    except pg2.DatabaseError as e:
+        print(e.pgerror)
 
 
 def all_bend_query(cb_cursor, cb_conn):
@@ -153,6 +199,38 @@ def single_cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn):
         print("No Record(s) Found.")
 
 
+def counted_cmbo_query(cur, conn, desired_num):
+    """
+    This function displays the user-supplied number of records from the combo_bend table.
+    :param
+        cur: Current, active cursor object to the database.
+    :param
+        conn: Current, active connection object to the database.
+    :param
+        desired_num: User-supplied number of records to present
+    :return:
+    """
+    try:
+        cur.execute(
+            """SELECT %s||'+'||%s,attributes.gps_shot,%s,%s,%s,%s,%s,%s,%s,%s
+            FROM %s
+            INNER JOIN %s
+            ON attributes.gps_shot = bend.gps_shot
+            INNER JOIN %s
+            ON bend.gps_shot = combo_bend.gps_shot
+            AND attributes.gps_shot = bend.gps_shot;"""
+            % (cols.whole_station, cols.offset_station,
+               cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
+               cols.bnd_dir, cols.bnd_type, cols.deg2, cols.bnd_dir2,
+               cols.attributes_table, cols.bend_table, cols.cmb_bend_table))
+        results = cur.fetchmany(desired_num)
+        for record in results:
+            for a, b in zip(common_labels + bnd_labels + c_bnd_labels, record):
+                print(a,b)
+    except pg2.DatabaseError as e:
+        print(e.pgerror)
+
+
 def all_cmbo_bend_query(cm_cursor, cm_conn):
     """This function displays all combo_bend records from the database.
     :param
@@ -216,6 +294,38 @@ def single_weld_query(w_gps_shot, w_cursor, w_conn):
     except pg2.DatabaseError as e:
         print(e.pgerror)
         print("No Record(s) Found.")
+
+
+def counted_weld_query(cur, conn, desired_num):
+    """This function displays a user-supplied number of records from the weld
+        table.
+    :param
+        cur: Current, active cursor object to the database.
+    :param
+        conn: Current, active connection object to the database.
+    :param
+        desired_num: User-supplied number of records to display from the
+        weld table.
+    :return:
+    """
+    try:
+        cur.execute(
+            """SELECT %s||'+'||%s,attributes.gps_shot,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+            FROM %s
+            INNER JOIN %s
+            ON attributes.gps_shot = weld.gps_shot;"""
+            % (cols.whole_station, cols.offset_station,
+               cols.grade_point, cols.depth_cover, cols.jottings,
+               cols.wld_type, cols.wld_x_id, cols.upstream_jt,
+               cols.downstream_jt, cols.ah_length, cols.ht, cols.wll_chng,
+               cols.ditch_loc, cols.welder_initials, cols.attributes_table,
+               cols.weld_table))
+        results = cur.fetchmany(desired_num)
+        for record in results:
+            for a, b in zip(common_labels + weld_labels, record):
+                print(a, b)
+    except pg2.DatabaseError as e:
+        print(e.pgerror)
 
 
 def all_weld_query(w_cursor, w_conn):

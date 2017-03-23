@@ -1,7 +1,6 @@
 import psycopg2 as pg2
 import survey_codes as sc
 import collector_functions as cf
-import db_column_cons as colu
 import database_manager as db_manager
 import db_query_helpers as db_helper
 
@@ -62,6 +61,8 @@ while go_or_stop != "EXIT":
             common = cf.collect_common_atts()
             bendy = cf.collect_bend()
             cmbdy = cf.collect_combo_bend()
+            # Unpacking all the tuples from the collect functions into the
+            # ComboBend class params for object creation.
             cmbo_bnd = sc.ComboBend(*common, *bendy, *cmbdy)
             db_manager.attributes_insert(cur, conn, cmbo_bnd.whole_station_number,
                                          cmbo_bnd.dec_station_num, cmbo_bnd.gps_shot,
@@ -73,15 +74,16 @@ while go_or_stop != "EXIT":
                                         cmbo_bnd.direction_2, cmbo_bnd.gps_shot)
     elif go_or_stop == "SEARCH":
         # Using this variable for how many records the user wants returned from the query.
-        how_many = str(input("How many Records?\nChoose \"One\" or \"All\" available: ")).upper()
+        how_many = str(input("How many Records?\nChoose \"One\" , \"Multiple\" "
+                             " or \"All\" available: ")).upper()
         if how_many == "ONE":
             # Getting the GPS Point from the user to search. This is critical as this is a key found in all database
             # tables.
             find_me = int(input("Enter the GPS Point to Search: "))
-            # Getting the code to search for here, in order to call the proper function to use for the query.
-            which_code = str(input("Which Code to Search: ")).upper()
             for code in code_choices:
                 print(code)
+            # Getting the code to search for here, in order to call the proper function to use for the query.
+            which_code = str(input("Which Code to Search: ")).upper()
             if which_code == "BEND":
                 db_helper.single_bend_query(find_me, cur, conn)
             elif which_code == "COMBO BEND":
@@ -97,5 +99,16 @@ while go_or_stop != "EXIT":
                 db_helper.all_cmbo_bend_query(cur, conn)
             else:
                 db_helper.all_weld_query(cur, conn)
+        elif how_many == "MULTIPLE":
+            which_code = str(input("Which Code to Search: ")).upper()
+            for code in code_choices:
+                print(code)
+            num_of_results = int(input("How many records to return? "))
+            if which_code == "BEND":
+                db_helper.counted_bend_query(cur, conn, num_of_results)
+            elif which_code == "COMBO BEND":
+                db_helper.counted_cmbo_query(cur, conn, num_of_results)
+            else:
+                db_helper.counted_weld_query(cur, conn, num_of_results)
 if cur:
     cur.close()
