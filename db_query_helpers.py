@@ -14,12 +14,14 @@ weld_labels = ('Weld Type:', 'Weld Id(X-Ray):', 'Upstream Joint:',
 
 
 def attributes_query(find_gps_shot, c_cursor, c_conn, search_count):
-    """
-    This function finds a certain set of common attributes in the database that is queried by the user.
-    :param find_gps_shot: The gps_shot of the attributes being queried. Supplied by user input.
-    :param c_cursor: Current, active cursor to use that is connected to the PostgreSQL database.
-    :param c_conn: Current active connection to use.
-    :return A list of the common attributes of the find_gps_shot query.
+    """This function displays all the attributes from the attribute
+        table associated with the user-supplied gps_shot.
+    :param
+        find_gps_shot: The gps_shot of the record being queried. Supplied by user input.
+    :param
+        c_cursor: Current, active cursor to use that is connected to the PostgreSQL database.
+    :param
+        c_conn: Current active connection to use.
     """
     if search_count == 'ONE':
         try:
@@ -56,14 +58,15 @@ def attributes_query(find_gps_shot, c_cursor, c_conn, search_count):
 
 
 def single_bend_query(findb_gps_shot, cb_cursor, cb_conn):
+    """This function displays the bend values associated with the passed in
+        gps_point from the bend table.
+    :param
+        findb_gps_shot: Associated gps_shot of the bend in question.
+    :param
+        cb_cursor: current, active cursor to use
+    :param
+        cb_conn: current active connection to use
     """
-    This function finds the bend associated with the passed in gps_point.
-    :param findb_gps_shot: Associated gps_shot of the bend in question.
-    :param cb_cursor: current, active cursor to use
-    :param cb_conn: current active connection to use
-    :return: A list of the searched bend attributes with common attributes
-    """
-    # Inner Joining the attributes and bend table on the shared gps_shot
     try:
         cb_cursor.execute(
             """SELECT %s||'+'||%s,%s,%s,%s,%s,%s,%s,%s
@@ -87,11 +90,11 @@ def single_bend_query(findb_gps_shot, cb_cursor, cb_conn):
 
 
 def all_bend_query(cb_cursor, cb_conn):
-    """
-    This function returns all records from the bend table.
-    :param cb_cursor: Current and active cursor to use
-    :param cb_conn: Current, active connection to use.
-    :return: A list of all the bend records found in the database.
+    """This function displays all records from the bend table.
+    :param
+        cb_cursor: Current and active cursor to use
+    :param
+        cb_conn: Current, active connection to use.
     """
     try:
         cb_cursor.execute(
@@ -115,12 +118,14 @@ def all_bend_query(cb_cursor, cb_conn):
 
 
 def single_cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn):
-    """
-    This function finds and returns the combo bend associated with the passed in gps_point.
-    :param cb_gps_shot: Associated gps_shot of the combo bend in question
-    :param cm_cursor: Current, active cursor object
-    :param cm_conn: Current active connection to use
-    :return: A list of the searched combo bend attributes.
+    """This function displays the attributes of the combo bend associated with
+        the passed in gps_point.
+    :param
+        cb_gps_shot: Associated gps_shot of the combo bend in question
+    :param
+        cm_cursor: Current, active cursor object
+    :param
+        cm_conn: Current active connection to use
     """
     try:
         cm_cursor.execute(
@@ -139,8 +144,8 @@ def single_cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn):
                cb_gps_shot))
         # Assigning the results of the cursor to this tuple and fetching one record.
         cb_query_result = cm_cursor.fetchone()
-        # Merging the common, bend and combo bend labels together with the query result for printing and displaying
-        # to the user.
+        # Merging the common, bend and combo bend labels together with the
+        # query result for printing and displaying to the user.
         for a, b in zip(common_labels + bnd_labels + c_bnd_labels, cb_query_result):
             print(a, b)
     except pg2.DatabaseError as e:
@@ -149,11 +154,11 @@ def single_cmbo_bend_query(cb_gps_shot, cm_cursor, cm_conn):
 
 
 def all_cmbo_bend_query(cm_cursor, cm_conn):
-    """
-    This function returns all combo_bend records from the database.
-    :param cm_cursor: The current active cursor to use.
-    :param cm_conn: The current, active connection to the database.
-    :return:
+    """This function displays all combo_bend records from the database.
+    :param
+        cm_cursor: The current active cursor to use.
+    :param
+        cm_conn: The current, active connection to the database.
     """
     try:
         cm_cursor.execute(
@@ -182,13 +187,14 @@ def all_cmbo_bend_query(cm_cursor, cm_conn):
 
 
 def single_weld_query(w_gps_shot, w_cursor, w_conn):
-    """
-    This function returns all attributes for a Weld Survey code by INNER JOIN
-    on the attributes and weld table
-    :param w_gps_shot: The gps_shot of the Weld being queried.
-    :param w_cursor: Current active cursor object to use.
-    :param w_conn: Current active connection object
-    :return: Returns a list of all the attributes for the Weld that is searched.
+    """This function displays weld attributes for the passed in gps_shot.
+        on the attributes and weld table
+    :param
+        w_gps_shot: The gps_shot of the Weld being queried.
+    :param
+        w_cursor: Current active cursor object to use.
+    :param
+        w_conn: Current active connection object
     """
     try:
         w_cursor.execute(
@@ -213,11 +219,11 @@ def single_weld_query(w_gps_shot, w_cursor, w_conn):
 
 
 def all_weld_query(w_cursor, w_conn):
-    """
-    This function returns all records for welds found in the database.
-    :param w_cursor: The current active cursor used for db activity.
-    :param w_conn: The current active connection to the database.
-    :return: A list of all records for all welds in the database.
+    """This function displays all records for welds found in the database.
+    :param
+        w_cursor: The current active cursor used for db activity.
+    :param
+        w_conn: The current active connection to the database.
     """
     try:
         w_cursor.execute(

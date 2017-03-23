@@ -24,7 +24,7 @@ db_manager.create_cmbo_bnd_table(cur, conn)  # Creating the combo_bend table.
 db_manager.create_weld_table(cur, conn)  # Creating the weld table.
 
 go_or_stop = str(input("Enter Collect to collect Data, Search to search the"
-                       "Database or Exit to leave the program. ")).upper()
+                       " Database or Exit to leave the program. ")).upper()
 while go_or_stop != "EXIT":
     if go_or_stop == "COLLECT":
         for code in code_choices:
@@ -35,78 +35,42 @@ while go_or_stop != "EXIT":
             # Assigning the results of the collect_common_atts() function to this for
             # tuple unpacking on insert.
             common = cf.collect_common_atts()
-            # Assigning the above collected values to the Common Attributes class
-            ca_atts = sc.CommonAttributes(*common)
-            db_manager.attributes_insert(cur, conn, ca_atts)
-        elif choice == code_choices[1]:
-            # Assigning the results of the collect_common_atts() function to this for
-            # tuple unpacking on insert.
-            common = cf.collect_common_atts()
-            # Assigning the above collected values to the Common Attributes class
-            #ca_atts = sc.CommonAttributes(*common)
             bendy = cf.collect_bend()
             bnd_atts = sc.Bend(*common,*bendy)
-            db_manager.attributes_insert(cur, conn, bnd_atts)
-            try:
-                cur.execute(
-                    """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES ('%s','%s',
-                    '%s','%s','%s','%s');""" % (colu.attributes_table,
-                                            colu.whole_station,
-                                            colu.offset_station, colu.gps_point,
-                                            colu.grade_point, colu.depth_cover,
-                                            colu.jottings,
-                                            ca_atts.whole_station_number,
-                                            ca_atts.dec_station_num,
-                                            ca_atts.gps_shot, ca_atts.grade_shot,
-                                            ca_atts.cover, ca_atts.notes))
-                weldy = cf.collect_weld()
-                wld_atts = sc.Weld(*weldy)
-                cur.execute(
-                    """INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');""" %
-                    (colu.weld_table, colu.wld_type, colu.wld_x_id, colu.upstream_jt,
-                     colu.downstream_jt, colu.ah_length, colu.ht, colu.wll_chng,
-                     colu.ditch_loc, colu.welder_initials, colu.wld_gps,
-                     wld_atts.weld_type, wld_atts.weld_id, wld_atts.up_asset,
-                     wld_atts.down_asset, wld_atts.length_ah, wld_atts.heat,
-                     wld_atts.wall_change, wld_atts.ditch, wld_atts.welder_inits,
-                     ca_atts.gps_shot))
-                conn.commit()
-            except pg2.Error as e:
-                print(e.pgerror)
-        elif choice == code_choices[2]:
+            db_manager.attributes_insert(cur, conn, bnd_atts.whole_station_number,
+                                         bnd_atts.dec_station_num, bnd_atts.gps_shot,
+                                         bnd_atts.grade_shot, bnd_atts.cover,
+                                         bnd_atts.notes)
+            db_manager.bend_insert(cur, conn, bnd_atts.degree, bnd_atts.direction,
+                                   bnd_atts.type, bnd_atts.gps_shot)
+        elif choice == code_choices[1]:  # Weld
+            common = cf.collect_common_atts()
+            weldy = cf.collect_weld()
+            wld_atts = sc.Weld(*common, *weldy)
+            db_manager.attributes_insert(cur, conn, wld_atts.whole_station_number,
+                                         wld_atts.dec_station_num, wld_atts.gps_shot,
+                                         wld_atts.grade_shot, wld_atts.cover,
+                                         wld_atts.notes)
+            db_manager.weld_insert(cur, conn, wld_atts.weld_type, wld_atts.weld_id,
+                                   wld_atts.up_asset, wld_atts.down_asset,
+                                   wld_atts.length_ah, wld_atts.heat,
+                                   wld_atts.wall_change, wld_atts.ditch,
+                                   wld_atts.welder_inits, wld_atts.gps_shot)
+        elif choice == code_choices[2]:  # Combo Bend
             # ComboBend was chosen so calling the needed methods and assigning to variables for tuple unpacking on
             # insert
             common = cf.collect_common_atts()
-            ca_atts = sc.CommonAttributes(*common)
-            # Inserting into the Common Attributes table
-            try:
-                cur.execute(
-                    """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES ('%s','%s',
-                    '%s','%s','%s','%s');""" % (colu.attributes_table,
-                                            colu.whole_station, colu.offset_station,
-                                            colu.gps_point, colu.grade_point,
-                                            colu.depth_cover, colu.jottings,
-                                            ca_atts.whole_station_number,
-                                            ca_atts.dec_station_num,
-                                            ca_atts.gps_shot, ca_atts.grade_shot,
-                                            ca_atts.cover, ca_atts.notes))
-                bendy = cf.collect_bend()
-                bnd_atts = sc.Bend(*bendy)
-                cur.execute(
-                    "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');" %
-                    (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-                     colu.bnd_gps, bnd_atts.degree, bnd_atts.direction, bnd_atts.type,
-                     ca_atts.gps_shot))
-                cmbdy = cf.collect_combo_bend()
-                cmbo = sc.ComboBend(*cmbdy)
-                cur.execute(
-                    "INSERT INTO %s (%s, %s, %s) VALUES ('%s','%s','%s');" %
-                    (colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, colu.c_bnd_gps,
-                     cmbo.degree_2, cmbo.direction_2, ca_atts.gps_shot))
-                conn.commit()
-            except pg2.Error as e:
-                print(e.pgerror)
+            bendy = cf.collect_bend()
+            cmbdy = cf.collect_combo_bend()
+            cmbo_bnd = sc.ComboBend(*common, *bendy, *cmbdy)
+            db_manager.attributes_insert(cur, conn, cmbo_bnd.whole_station_number,
+                                         cmbo_bnd.dec_station_num, cmbo_bnd.gps_shot,
+                                         cmbo_bnd.grade_shot, cmbo_bnd.cover,
+                                         cmbo_bnd.notes)
+            db_manager.bend_insert(cur, conn, cmbo_bnd.degree, cmbo_bnd.direction,
+                                   cmbo_bnd.type, cmbo_bnd.gps_shot)
+            db_manager.comb_bend_insert(cur, conn, cmbo_bnd.degree_2,
+                                        cmbo_bnd.direction_2, cmbo_bnd.gps_shot)
     elif go_or_stop == "SEARCH":
         # Using this variable for how many records the user wants returned from the query.
         how_many = str(input("How many Records?\nChoose \"One\" or \"All\" available: ")).upper()

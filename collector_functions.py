@@ -1,15 +1,18 @@
 # This module contains helper functions used to collect survey data.
 
-bend_directions = ('SAG', 'OVERBEND', 'PI-LT', 'PI-RT') # A tuple of bend directions
-bend_types = ('FIELD', 'FORGED', 'FACTORY','HOT') # A tuple of bend types
+bend_directions = ('SAG', 'OVERBEND', 'PI-LT', 'PI-RT')  # A tuple of bend directions
+bend_types = ('FIELD', 'FORGED', 'FACTORY','HOT')  # A tuple of bend types
+# A tuple of the different weld types.
 weld_types = ('MAINLINE', 'TIE-IN', 'FACTORY', 'REPAIR', 'FABRICATION', 'EXISTING', 'VALVE SITE')
 
 
 def station_convert():
-    """
-    Using this method to extract the whole and decimal number value out of the linear referencing station num
-    :param station_num: passed in String version of the station number collected from the user.
-    :return: a whole station int and a decimal float station offset numbers for use in storing in the database
+    """This method extracts the whole and decimal number values out of a linear
+        referencing station number.
+    :param
+        station_num: Passed in String version of a linear referencing station number.
+    :return:
+        A whole station int and a decimal station offset set of numbers for storing in the database.
     """
     m_station_num = str(input("Station number: "))
     number_element = m_station_num.split('+')
@@ -19,9 +22,9 @@ def station_convert():
 
 
 def collect_common_atts():
-    """
-    This function collects all the survey data for the common attributes
-    :return: all collected variables into a tuple
+    """Collects user-input survey data for the 'common' attributes table.
+    :return:
+        All collected variables into a tuple.
     """
     m_station_num = str(input("Station number: "))
     number_element = m_station_num.split('+')
@@ -53,9 +56,9 @@ def collect_common_atts():
 
 
 def collect_weld():
-    """
-    This function collects all the survey data for a weld.
-    :return: All collected variables into a tuple
+    """Collects user-input survey data for the weld table.
+    :return:
+        All collected variables into a tuple
     """
     for weld in weld_types:
         print(weld)
@@ -80,9 +83,9 @@ def collect_weld():
 
 
 def collect_bend():
-    """
-    This function collects the basic bend attributes
-    :return: the degree, direction, type of bend
+    """Collects user-input survey data for the bend table.
+    :return:
+        the degree, direction, type of bend
     """
     m_degree = 0.0
     while True:
@@ -105,9 +108,9 @@ def collect_bend():
 
 
 def collect_combo_bend():
-    """
-    This function collects the addition two needed attributes for a combo bend
-    :return: all collected variables to a tuple
+    """Collects user-input survey data for the combo_bend table.
+    :return:
+        all collected variables to a tuple
     """
     m_degree_2 = 0.0
     for direction in bend_directions:
