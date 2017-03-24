@@ -93,6 +93,35 @@ def create_weld_table(cur, conn):
         print("{} table not created.".format(colu.weld_table))
 
 
+def remove_record(cur, con, gps_shot):
+    """Completely remove (delete) a record from the database.
+    :param
+        cur: The current, active cursor object to the database.
+    :param
+        con: The current, active connection to the database.
+    :param
+        gps_shot: The gps_shot of the record to delete.
+    :return: Does not return anything.
+    """
+    print("!!!WARNING!!!\nTHIS OPERATION WILL COMPLETELY REMOVE THE RECORD"
+          " FROM THE DATABASE!!!!!")
+    proceed = str(input("Do you wish to proceed with deleting this record?"
+                        " (YES or NO")).upper()
+    if proceed == "YES":
+        try:
+            cur.execute(
+                """DELETE FROM %s
+                WHERE %s = '%s';""" % (colu.attributes_table, colu.gps_point,
+                                       gps_shot)
+            )
+            con.commit()
+            print("Record deleted from database.")
+        except pg2.DatabaseError as e:
+            print(e.pgerror)
+    else:
+        print("Record not deleted.")
+
+
 def attributes_insert(cur, conn, whole_stat, off_stat, gps, grade, cvr, some_notes):
     """This function inserts collected survey attributes into the attributes table.
     :param

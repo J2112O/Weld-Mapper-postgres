@@ -23,7 +23,8 @@ db_manager.create_cmbo_bnd_table(cur, conn)  # Creating the combo_bend table.
 db_manager.create_weld_table(cur, conn)  # Creating the weld table.
 
 go_or_stop = str(input("Enter Collect to collect Data, Search to search the"
-                       " Database or Exit to leave the program. ")).upper()
+                       " Database, Delete to delete an existing record, or Exit"
+                       " to leave the program. ")).upper()
 while go_or_stop != "EXIT":
     if go_or_stop == "COLLECT":
         for code in code_choices:
@@ -99,7 +100,7 @@ while go_or_stop != "EXIT":
                 db_helper.all_cmbo_bend_query(cur, conn)
             else:
                 db_helper.all_weld_query(cur, conn)
-        elif how_many == "MULTIPLE":
+        else:  # MULTIPLE
             which_code = str(input("Which Code to Search: ")).upper()
             for code in code_choices:
                 print(code)
@@ -110,8 +111,11 @@ while go_or_stop != "EXIT":
                 db_helper.counted_cmbo_query(cur, conn, num_of_results)
             else:
                 db_helper.counted_weld_query(cur, conn, num_of_results)
+    else:
+        gps_to_delete = int(input("GPS Point of the Record to Delete: "))
+        db_manager.remove_record(cur, conn, gps_to_delete)
 
-    go_or_stop = str(input("Enter Collect to collect Data, Search to search the"
-                        " Database or Exit to leave the program. ")).upper()
+    go_or_stop = str(input("Enter Collect to collect Data, Search to search"
+                           " the Database or Exit to leave the program. ")).upper()
 if cur:
     cur.close()
