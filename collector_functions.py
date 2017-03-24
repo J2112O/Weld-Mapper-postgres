@@ -79,7 +79,7 @@ def collect_weld():
     m_ditch = str(input("Pipe In Ditch (Yes or No): ")).upper()
     m_welder_in = str(input("Welder Initials: ")).upper()
     return m_weld_type, m_weld_id, m_upstream_asset, m_down_asset, m_length_ah,\
-            m_heat, m_wall_change, m_ditch, m_welder_in
+           m_heat, m_wall_change, m_ditch, m_welder_in
 
 
 def collect_bend():
@@ -126,5 +126,4 @@ def collect_combo_bend():
             break
 
     return m_direction_2, m_degree_2
-
 

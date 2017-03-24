@@ -58,7 +58,7 @@ def attributes_query(find_gps_shot, c_cursor, c_conn, search_count):
 
 
 def gps_shot_query(cur, conn):
-    """This function returns all gps_shots in the database.
+    """This function prints all gps_shots in the database.
     :param
         cur: Current, active cursor to use.
     :param
@@ -68,7 +68,7 @@ def gps_shot_query(cur, conn):
         cur.execute(
             """SELECT %s
             FROM %s;""" % (cols.gps_point, cols.attributes_table))
-        results = cur.fetchall()
+        results = cur.fetchall()  # Assigning all results to this tuple.
         for record in results:
             print(record)
     except pg2.DatabaseError as e:
