@@ -55,7 +55,7 @@ while go_or_stop != "EXIT":
                                    wld_atts.length_ah, wld_atts.heat,
                                    wld_atts.wall_change, wld_atts.ditch,
                                    wld_atts.welder_inits, wld_atts.gps_shot)
-        elif choice == code_choices[2]:  # Combo Bend
+        else:  # Combo Bend
             # ComboBend was chosen so calling the needed methods and assigning to variables for tuple unpacking on
             # insert
             common = cf.collect_common_atts()
@@ -110,5 +110,8 @@ while go_or_stop != "EXIT":
                 db_helper.counted_cmbo_query(cur, conn, num_of_results)
             else:
                 db_helper.counted_weld_query(cur, conn, num_of_results)
+
+    go_or_stop = str(input("Enter Collect to collect Data, Search to search the"
+                        " Database or Exit to leave the program. ")).upper()
 if cur:
     cur.close()
