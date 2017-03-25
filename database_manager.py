@@ -144,14 +144,6 @@ def attributes_insert(cur, conn, whole_stat, off_stat, gps, grade, cvr, some_not
                  ",grade_shot,cover,notes) VALUES (%s,%s,%s,%s,%s,%s);"
     values = (whole_stat, off_stat, gps, grade, cvr, some_notes)
     try:
-        '''
-        cur.execute(
-            """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES ('%s','%s',
-            '%s','%s','%s','%s');"""
-            % (colu.attributes_table, colu.whole_station, colu.offset_station,
-               colu.gps_point, colu.grade_point, colu.depth_cover, colu.jottings,
-               whole_stat, off_stat, gps, grade, cvr, some_notes))
-               '''
         cur.execute(attrib_sql, values)
         conn.commit()
         print("Attribute record inserted successfully.")
@@ -178,12 +170,6 @@ def bend_insert(cur, conn, some_deg, some_dir, some_type, some_gps):
     bend_sql = "INSERT INTO bend (degree,direction,type,gps_shot) VALUES (%s,%s,%s,%s);"
     bnd_vals = (some_deg, some_dir, some_type, some_gps)
     try:
-        '''
-        cur.execute(
-            "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');"
-            % (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
-               colu.bnd_gps, some_deg, some_dir, some_type, some_gps))
-               '''
         cur.execute(bend_sql, bnd_vals)
         conn.commit()
         print("Bend record inserted successfully.")
@@ -207,11 +193,11 @@ def comb_bend_insert(cur, conn, some_deg2, some_dir2, some_gps):
     :param
         some_gps: gps shot of combo bend.
     """
+    cmbo_sql = "INSERT INTO combo_bend (degree_2,direction_2,gps_shot) VALUES" \
+               " (%s,%s,%s);"
+    cmbo_values = (some_deg2, some_dir2, some_gps)
     try:
-        cur.execute(
-            "INSERT INTO %s (%s, %s, %s) VALUES ('%s','%s','%s');" %
-            (colu.cmb_bend_table, colu.deg2, colu.bnd_dir2, colu.c_bnd_gps,
-             some_deg2, some_dir2, some_gps))
+        cur.execute(cmbo_sql, cmbo_values)
         conn.commit()
         print("Combo Bend record inserted successfully.")
     except pg2.DatabaseError as e:
@@ -251,15 +237,14 @@ def weld_insert(cur, conn, some_wld_type, some_wld_x_id, some_up_jt, some_dw_jt,
     :param
         some_: gps_shot associated with this weld.
     """
+    weld_sql = "INSERT INTO weld (type,weld_id,upstream_joint,downstream_joint," \
+               "length_ahead,heat,wall_change,location,welder_initials,gps_shot)" \
+               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+    weld_values = (some_wld_type, some_wld_x_id, some_up_jt, some_dw_jt,
+                   some_ln, some_ht, some_wall_chg, some_ditch,
+                   some_inits, some_gps)
     try:
-        cur.execute(
-            """INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');""" %
-            (colu.weld_table, colu.wld_type, colu.wld_x_id, colu.upstream_jt,
-             colu.downstream_jt, colu.ah_length, colu.ht, colu.wll_chng,
-             colu.ditch_loc, colu.welder_initials, colu.wld_gps,
-             some_wld_type, some_wld_x_id, some_up_jt, some_dw_jt, some_ln,
-             some_ht, some_wall_chg, some_ditch, some_inits, some_gps))
+        cur.execute(weld_sql, weld_values)
         conn.commit()
         print("Weld record inserted successfully.")
     except pg2.DatabaseError as e:
