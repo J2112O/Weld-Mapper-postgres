@@ -104,17 +104,15 @@ def remove_record(cur, con, gps_shot):
     :return:
         Does not return any object(s).
     """
+    remove_sql = "DELETE FROM attributes WHERE gps_shot = %s;"
+    point_to_delete = (gps_shot,)
     print("!!!WARNING!!!\nTHIS OPERATION WILL COMPLETELY REMOVE THE RECORD"
           " FROM THE DATABASE!!!!!")
     proceed = str(input("Do you wish to proceed with deleting this record?"
-                        " (YES or NO")).upper()
+                        " (YES or NO)")).upper()
     if proceed == "YES":
         try:
-            cur.execute(
-                """DELETE FROM %s
-                WHERE %s = '%s';""" % (colu.attributes_table, colu.gps_point,
-                                       gps_shot)
-            )
+            cur.execute(remove_sql, point_to_delete)
             con.commit()
             print("Record deleted from database.")
         except pg2.DatabaseError as e:
@@ -126,7 +124,7 @@ def remove_record(cur, con, gps_shot):
 def attributes_insert(cur, conn, whole_stat, off_stat, gps, grade, cvr, some_notes):
     """This function inserts collected survey attributes into the attributes table.
     :param
-        cur: Active and live cursor to the database.
+        cur: Active and live cursor to the database
     :param
         conn: Active and live connection to the database.
     :param
@@ -142,13 +140,19 @@ def attributes_insert(cur, conn, whole_stat, off_stat, gps, grade, cvr, some_not
     :param
         some_notes: notes
     """
+    attrib_sql = "INSERT INTO attributes (whole_station,offset_station,gps_shot" \
+                 ",grade_shot,cover,notes) VALUES (%s,%s,%s,%s,%s,%s);"
+    values = (whole_stat, off_stat, gps, grade, cvr, some_notes)
     try:
+        '''
         cur.execute(
             """INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES ('%s','%s',
             '%s','%s','%s','%s');"""
             % (colu.attributes_table, colu.whole_station, colu.offset_station,
                colu.gps_point, colu.grade_point, colu.depth_cover, colu.jottings,
                whole_stat, off_stat, gps, grade, cvr, some_notes))
+               '''
+        cur.execute(attrib_sql, values)
         conn.commit()
         print("Attribute record inserted successfully.")
     except pg2.Error as e:
@@ -171,11 +175,16 @@ def bend_insert(cur, conn, some_deg, some_dir, some_type, some_gps):
     :param
         some_gps: gps shot of bend.
     """
+    bend_sql = "INSERT INTO bend (degree,direction,type,gps_shot) VALUES (%s,%s,%s,%s);"
+    bnd_vals = (some_deg, some_dir, some_type, some_gps)
     try:
+        '''
         cur.execute(
             "INSERT INTO %s (%s, %s, %s, %s) VALUES ('%s','%s','%s','%s');"
             % (colu.bend_table, colu.deg, colu.bnd_dir, colu.bnd_type,
                colu.bnd_gps, some_deg, some_dir, some_type, some_gps))
+               '''
+        cur.execute(bend_sql, bnd_vals)
         conn.commit()
         print("Bend record inserted successfully.")
     except pg2.Error as e:

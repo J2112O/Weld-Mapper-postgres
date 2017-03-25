@@ -91,7 +91,7 @@ def single_bend_query(findb_gps_shot, cb_cursor, cb_conn):
             FROM %s
             INNER JOIN %s
             ON attributes.gps_shot = bend.gps_shot
-            WHERE attributes.gps_shot = '%s';"""
+            WHERE attributes.gps_shot = %s;"""
             % (cols.whole_station, cols.offset_station, findb_gps_shot,
                cols.grade_point, cols.depth_cover, cols.jottings, cols.deg,
                cols.bnd_dir, cols.bnd_type, cols.attributes_table,
