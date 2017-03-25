@@ -100,8 +100,9 @@ def remove_record(cur, con, gps_shot):
     :param
         con: The current, active connection to the database.
     :param
-        gps_shot: The gps_shot of the record to delete.
-    :return: Does not return anything.
+        gps_shot: The user-supplied gps_shot of the record to delete.
+    :return:
+        Does not return any object(s).
     """
     print("!!!WARNING!!!\nTHIS OPERATION WILL COMPLETELY REMOVE THE RECORD"
           " FROM THE DATABASE!!!!!")
