@@ -1,7 +1,7 @@
 # This module has db query functions in it.
 import psycopg2 as pg2
 import db_column_cons as cols
-
+from psycopg2 import sql
 
 # These are tuples of labels for printing and displaying data to the user from the query functions below.
 common_labels = ('Station:', 'GPS Point:', 'Grade GPS Point:', 'Cover:',
