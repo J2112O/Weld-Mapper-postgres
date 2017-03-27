@@ -39,3 +39,5 @@ wll_chng = "wall_change"
 ditch_loc = "location"
 welder_initials = "welder_initials"
 wld_gps = "gps_shot"
+
+password = "Narmar123"

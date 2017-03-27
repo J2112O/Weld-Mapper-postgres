@@ -3,13 +3,14 @@ import survey_codes as sc
 import collector_functions as cf
 import database_manager as db_manager
 import db_query_helpers as db_helper
+import db_column_cons as col
 
 code_choices = ("BEND", "WELD", "COMBO BEND")
 cur = None
 conn = None
 
 try:
-    conn = pg2.connect("host=127.0.0.1 dbname=as_built2 user=postgres password=Narmar123 port=5433")
+    conn = pg2.connect("host=127.0.0.1 dbname=as_built2 user=postgres password={} port=5433".format(col.password))
     cur = conn.cursor()
     print("Connected to {} database.".format("as_built2"))
 except pg2.DatabaseError as e:
