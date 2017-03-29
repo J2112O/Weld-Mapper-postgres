@@ -1,9 +1,8 @@
-import psycopg2 as pg2
-import db_column_cons as col
+import psycopg2 as pg2  # Labeling psycopg2 as pg2 here.
+import db_column_cons as col  # Same thing here.
 
 cur = None
 conn = None
-
 
 try:
     conn = pg2.connect("host=127.0.0.1 dbname=postgres user=postgres password={} port=5433".format(col.password))
